@@ -1,4 +1,5 @@
 import { createUser, findUserByEmail } from "./auth.repository";
+import { AppError } from "../../shared/errors/AppError";
 
 interface RegisterUserInput {
   name: string;
@@ -14,7 +15,7 @@ export const registerUser = async ({
   const existingUser = await findUserByEmail(email);
 
   if (existingUser) {
-    throw new Error("User already exists");
+    throw new AppError("User already exists", 409);
   }
 
   const user = await createUser(name, email, password);

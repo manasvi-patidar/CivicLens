@@ -5,6 +5,7 @@ import compression from "compression";
 import cookieParser from "cookie-parser";
 import morgan from "morgan";
 
+import { errorHandler } from "./shared/errors/errorHandler";
 import authRoutes from "./modules/auth/auth.routes";
 
 const app = express();
@@ -18,6 +19,7 @@ app.use(cookieParser());
 app.use(morgan("dev"));
 
 app.use("/api/auth", authRoutes);
+app.use(errorHandler);
 
 app.get("/", (_req, res) => {
   res.json({
