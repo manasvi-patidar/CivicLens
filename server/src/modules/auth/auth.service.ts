@@ -1,5 +1,6 @@
 import { createUser, findUserByEmail } from "./auth.repository";
 import { AppError } from "../../shared/errors/AppError";
+import { generateToken } from "../../shared/utils/jwt";
 import bcrypt from "bcrypt";
 
 interface RegisterUserInput {
@@ -29,5 +30,39 @@ export const registerUser = async ({
     email: user.email,
     role: user.role,
     createdAt: user.createdAt,
+  };
+};
+
+interface LoginUserInput {
+  email: string;
+  password: string;
+}
+
+export const loginUser = async ({ email, password }: LoginUserInput) => {
+  const user = await findUserByEmail(email);
+
+  if (!user) {
+    throw new AppError("Invalid email or password", 401);
+  }
+
+  const isPasswordValid = await bcrypt.compare(password, user.password);
+
+  if (!isPasswordValid) {
+    throw new AppError("Invalid email or password", 401);
+  }
+
+  const token = generateToken({
+    userId: user.id,
+    role: user.role,
+  });
+
+  return {
+    token,
+    user: {
+      id: user.id,
+      name: user.name,
+      email: user.email,
+      role: user.role,
+    },
   };
 };
