@@ -1,5 +1,6 @@
 import { createUser, findUserByEmail } from "./auth.repository";
 import { AppError } from "../../shared/errors/AppError";
+import bcrypt from "bcrypt";
 
 interface RegisterUserInput {
   name: string;
@@ -18,7 +19,9 @@ export const registerUser = async ({
     throw new AppError("User already exists", 409);
   }
 
-  const user = await createUser(name, email, password);
+  const hashedPassword = await bcrypt.hash(password, 12);
+
+  const user = await createUser(name, email, hashedPassword);
 
   return {
     id: user.id,
