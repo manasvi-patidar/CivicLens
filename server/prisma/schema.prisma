@@ -8,7 +8,6 @@ datasource db {
 }
 
 model User {
-
   id String @id @default(cuid())
 
   name String
@@ -26,6 +25,8 @@ model User {
   createdAt DateTime @default(now())
 
   updatedAt DateTime @updatedAt
+
+  issues Issue[]
 }
 
 enum UserRole {
@@ -33,4 +34,53 @@ enum UserRole {
   VOLUNTEER
   AUTHORITY
   ADMIN
+}
+
+enum IssueCategory {
+  ROAD
+  WATER
+  ELECTRICITY
+  GARBAGE
+  STREETLIGHT
+  DRAINAGE
+  PUBLIC_PROPERTY
+  OTHER
+}
+
+enum IssueStatus {
+  OPEN
+  IN_PROGRESS
+  RESOLVED
+  REJECTED
+}
+
+enum Priority {
+  LOW
+  MEDIUM
+  HIGH
+}
+
+model Issue {
+  id String @id @default(cuid())
+
+  title       String
+  description String
+
+  category IssueCategory
+  status   IssueStatus   @default(OPEN)
+  priority Priority      @default(MEDIUM)
+
+  latitude  Float
+  longitude Float
+  address   String?
+
+  createdById String
+  createdBy   User   @relation(fields: [createdById], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([createdById])
+  @@index([status])
+  @@index([category])
 }
