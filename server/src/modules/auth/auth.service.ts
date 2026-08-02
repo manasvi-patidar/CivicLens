@@ -1,4 +1,4 @@
-import { createUser, findUserByEmail } from "./auth.repository";
+import { createUser, findUserByEmail, findUserById } from "./auth.repository";
 import { AppError } from "../../shared/errors/AppError";
 import { generateToken } from "../../shared/utils/jwt";
 import bcrypt from "bcrypt";
@@ -64,5 +64,23 @@ export const loginUser = async ({ email, password }: LoginUserInput) => {
       email: user.email,
       role: user.role,
     },
+  };
+};
+
+export const getCurrentUser = async (userId: string) => {
+  const user = await findUserById(userId);
+
+  if (!user) {
+    throw new AppError("User not found", 404);
+  }
+
+  return {
+    id: user.id,
+    name: user.name,
+    email: user.email,
+    role: user.role,
+    reputation: user.reputation,
+    isVerified: user.isVerified,
+    createdAt: user.createdAt,
   };
 };
