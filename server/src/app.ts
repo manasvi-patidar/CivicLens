@@ -7,6 +7,7 @@ import morgan from "morgan";
 
 import { errorHandler } from "./shared/errors/errorHandler";
 import authRoutes from "./modules/auth/auth.routes";
+import issueRoutes from "./modules/issue/issue.routes";
 
 const app = express();
 
@@ -19,6 +20,7 @@ app.use(cookieParser());
 app.use(morgan("dev"));
 
 app.use("/api/auth", authRoutes);
+app.use("/api/issues", issueRoutes);
 app.use(errorHandler);
 
 app.get("/", (_req, res) => {
