@@ -29,3 +29,7 @@ export const createIssueSchema = z.object({
 });
 
 export type CreateIssueInput = z.infer<typeof createIssueSchema>;
+
+export const updateIssueStatusSchema = z.object({
+  status: z.enum(["OPEN", "IN_PROGRESS", "RESOLVED", "REJECTED"]),
+});

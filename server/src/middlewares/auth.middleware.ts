@@ -15,6 +15,7 @@ export interface AuthRequest extends Request {
   };
 }
 
+//authentication middleware
 export const protect = async (
   req: AuthRequest,
   _res: Response,
@@ -54,3 +55,20 @@ export const protect = async (
     next(new AppError("Invalid or expired token", 401));
   }
 };
+
+//authorization middleware
+export const authorize =
+  (...roles: string[]) =>
+  (req: AuthRequest, _res: Response, next: NextFunction) => {
+    if (!req.user) {
+      return next(new AppError("Authentication required", 401));
+    }
+
+    if (!roles.includes(req.user.role)) {
+      return next(
+        new AppError("You are not authorized to perform this action", 403),
+      );
+    }
+
+    next();
+  };

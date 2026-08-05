@@ -1,10 +1,11 @@
 import { Request, Response } from "express";
 import { AuthRequest } from "../../middlewares/auth.middleware";
-import { createIssueSchema } from "./issue.validation";
+import { createIssueSchema, updateIssueStatusSchema } from "./issue.validation";
 import {
   createIssueService,
   getAllIssuesService,
   getIssueByIdService,
+  updateIssueStatusService,
 } from "./issue.service";
 
 export const createIssue = async (req: AuthRequest, res: Response) => {
@@ -73,6 +74,27 @@ export const getIssueById = async (req: Request, res: Response) => {
     });
   } catch (error: any) {
     return res.status(404).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
+
+export const updateIssueStatus = async (req: Request, res: Response) => {
+  try {
+    const id = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
+
+    const { status } = updateIssueStatusSchema.parse(req.body);
+
+    const issue = await updateIssueStatusService(id, status);
+
+    return res.status(200).json({
+      success: true,
+      message: "Issue status updated successfully",
+      data: issue,
+    });
+  } catch (error: any) {
+    return res.status(400).json({
       success: false,
       message: error.message,
     });

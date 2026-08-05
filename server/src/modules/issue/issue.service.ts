@@ -1,5 +1,10 @@
 import { CreateIssueInput } from "./issue.validation";
-import { createIssue, getAllIssues, getIssueById } from "./issue.repository";
+import {
+  createIssue,
+  getAllIssues,
+  getIssueById,
+  updateIssueStatus,
+} from "./issue.repository";
 
 export const createIssueService = async (
   userId: string,
@@ -41,4 +46,17 @@ export const getIssueByIdService = async (id: string) => {
   }
 
   return issue;
+};
+
+export const updateIssueStatusService = async (
+  id: string,
+  status: "OPEN" | "IN_PROGRESS" | "RESOLVED" | "REJECTED",
+) => {
+  const issue = await getIssueById(id);
+
+  if (!issue) {
+    throw new Error("Issue not found");
+  }
+
+  return updateIssueStatus(id, status);
 };

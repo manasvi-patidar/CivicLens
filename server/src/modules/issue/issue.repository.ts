@@ -75,3 +75,27 @@ export const getIssueById = async (id: string) => {
     },
   });
 };
+
+export const updateIssueStatus = async (
+  id: string,
+  status: "OPEN" | "IN_PROGRESS" | "RESOLVED" | "REJECTED",
+) => {
+  return prisma.issue.update({
+    where: {
+      id,
+    },
+    data: {
+      status,
+    },
+    include: {
+      createdBy: {
+        select: {
+          id: true,
+          name: true,
+          email: true,
+          role: true,
+        },
+      },
+    },
+  });
+};
