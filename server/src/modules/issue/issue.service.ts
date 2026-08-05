@@ -1,6 +1,5 @@
 import { CreateIssueInput } from "./issue.validation";
-import { createIssue } from "./issue.repository";
-import { getAllIssues } from "./issue.repository";
+import { createIssue, getAllIssues, getIssueById } from "./issue.repository";
 
 export const createIssueService = async (
   userId: string,
@@ -32,4 +31,14 @@ export const getAllIssuesService = async (
   sort: "asc" | "desc" = "desc",
 ) => {
   return getAllIssues(page, limit, status, category, search, sort);
+};
+
+export const getIssueByIdService = async (id: string) => {
+  const issue = await getIssueById(id);
+
+  if (!issue) {
+    throw new Error("Issue not found");
+  }
+
+  return issue;
 };

@@ -57,3 +57,21 @@ export const getAllIssues = async (
     take: limit,
   });
 };
+
+export const getIssueById = async (id: string) => {
+  return prisma.issue.findUnique({
+    where: {
+      id,
+    },
+    include: {
+      createdBy: {
+        select: {
+          id: true,
+          name: true,
+          email: true,
+          role: true,
+        },
+      },
+    },
+  });
+};
