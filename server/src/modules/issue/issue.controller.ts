@@ -1,7 +1,7 @@
-import { Response } from "express";
+import { Request, Response } from "express";
 import { AuthRequest } from "../../middlewares/auth.middleware";
 import { createIssueSchema } from "./issue.validation";
-import { createIssueService } from "./issue.service";
+import { createIssueService, getAllIssuesService } from "./issue.service";
 
 export const createIssue = async (req: AuthRequest, res: Response) => {
   try {
@@ -16,6 +16,41 @@ export const createIssue = async (req: AuthRequest, res: Response) => {
     });
   } catch (error: any) {
     return res.status(400).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
+
+export const getAllIssues = async (req: Request, res: Response) => {
+  try {
+    const page = Number(req.query.page) || 1;
+    const limit = Number(req.query.limit) || 10;
+
+    const status = req.query.status as string | undefined;
+    const category = req.query.category as string | undefined;
+    const search = req.query.search as string | undefined;
+
+    const sort = req.query.sort === "asc" ? "asc" : "desc";
+
+    const issues = await getAllIssuesService(
+      page,
+      limit,
+      status,
+      category,
+      search,
+      sort,
+    );
+
+    return res.status(200).json({
+      success: true,
+      page,
+      limit,
+      count: issues.length,
+      data: issues,
+    });
+  } catch (error: any) {
+    return res.status(500).json({
       success: false,
       message: error.message,
     });

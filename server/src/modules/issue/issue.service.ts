@@ -1,5 +1,6 @@
 import { CreateIssueInput } from "./issue.validation";
 import { createIssue } from "./issue.repository";
+import { getAllIssues } from "./issue.repository";
 
 export const createIssueService = async (
   userId: string,
@@ -20,4 +21,15 @@ export const createIssueService = async (
       },
     },
   });
+};
+
+export const getAllIssuesService = async (
+  page: number,
+  limit: number,
+  status?: string,
+  category?: string,
+  search?: string,
+  sort: "asc" | "desc" = "desc",
+) => {
+  return getAllIssues(page, limit, status, category, search, sort);
 };
