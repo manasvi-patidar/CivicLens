@@ -12,7 +12,13 @@ export const createIssue = async (req: AuthRequest, res: Response) => {
   try {
     const validatedData = createIssueSchema.parse(req.body);
 
-    const issue = await createIssueService(req.user!.id, validatedData);
+    const imageUrl = req.file ? (req.file as any).path : undefined;
+
+    const issue = await createIssueService(
+      req.user!.id,
+      validatedData,
+      imageUrl,
+    );
 
     return res.status(201).json({
       success: true,

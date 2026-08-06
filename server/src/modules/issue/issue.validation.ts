@@ -21,9 +21,9 @@ export const createIssueSchema = z.object({
 
   priority: z.enum(["LOW", "MEDIUM", "HIGH"]),
 
-  latitude: z.number(),
+  latitude: z.coerce.number(),
 
-  longitude: z.number(),
+  longitude: z.coerce.number(),
 
   address: z.string().optional(),
 });

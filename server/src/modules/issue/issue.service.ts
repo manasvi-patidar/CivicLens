@@ -1,4 +1,6 @@
 import { CreateIssueInput } from "./issue.validation";
+import { Prisma } from "@prisma/client";
+
 import {
   createIssue,
   getAllIssues,
@@ -8,23 +10,22 @@ import {
 
 export const createIssueService = async (
   userId: string,
-  data: CreateIssueInput,
+  data: any,
+  imageUrl?: string,
 ) => {
-  return createIssue({
-    title: data.title,
-    description: data.description,
-    category: data.category,
-    priority: data.priority,
-    latitude: data.latitude,
-    longitude: data.longitude,
-    address: data.address,
+  const issueData: Prisma.IssueCreateInput = {
+    ...data,
+
+    imageUrl,
 
     createdBy: {
       connect: {
         id: userId,
       },
     },
-  });
+  };
+
+  return createIssue(issueData);
 };
 
 export const getAllIssuesService = async (
