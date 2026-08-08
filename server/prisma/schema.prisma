@@ -31,6 +31,8 @@ model User {
   comments Comment[]
 
   activities Activity[]
+
+  assignedIssues Issue[] @relation("IssueAssignee")
 }
 
 enum UserRole {
@@ -68,20 +70,20 @@ enum ActivityType {
   ISSUE_CREATED
   STATUS_UPDATED
   COMMENT_ADDED
+  ISSUE_ASSIGNED
 }
 
 model Issue {
-
   id String @id @default(cuid())
 
-  title String
+  title       String
   description String
 
   category IssueCategory
-  status IssueStatus @default(OPEN)
-  priority Priority @default(MEDIUM)
+  status   IssueStatus   @default(OPEN)
+  priority Priority      @default(MEDIUM)
 
-  latitude Float
+  latitude  Float
   longitude Float
 
   address String?
@@ -89,7 +91,10 @@ model Issue {
   imageUrl String?
 
   createdById String
-  createdBy User @relation(fields: [createdById], references: [id])
+  createdBy   User   @relation(fields: [createdById], references: [id])
+
+  assignedToId String?
+  assignedTo   User?   @relation("IssueAssignee", fields: [assignedToId], references: [id])
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -99,28 +104,27 @@ model Issue {
   activities Activity[]
 
   @@index([createdById])
+  @@index([assignedToId])
   @@index([status])
   @@index([category])
 }
 
 model Comment {
-
   id String @id @default(cuid())
 
   content String
 
   issueId String
-  issue Issue @relation(fields: [issueId], references: [id], onDelete: Cascade)
+  issue   Issue  @relation(fields: [issueId], references: [id], onDelete: Cascade)
 
   userId String
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   createdAt DateTime @default(now())
 
   updatedAt DateTime @updatedAt
 
   @@index([issueId])
-
   @@index([userId])
 }
 
@@ -132,10 +136,10 @@ model Activity {
   message String
 
   issueId String
-  issue Issue @relation(fields: [issueId], references: [id], onDelete: Cascade)
+  issue   Issue  @relation(fields: [issueId], references: [id], onDelete: Cascade)
 
   userId String
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   createdAt DateTime @default(now())
 
