@@ -29,6 +29,8 @@ model User {
   issues Issue[]
 
   comments Comment[]
+
+  activities Activity[]
 }
 
 enum UserRole {
@@ -62,6 +64,12 @@ enum Priority {
   HIGH
 }
 
+enum ActivityType {
+  ISSUE_CREATED
+  STATUS_UPDATED
+  COMMENT_ADDED
+}
+
 model Issue {
 
   id String @id @default(cuid())
@@ -88,6 +96,8 @@ model Issue {
 
   comments Comment[]
 
+  activities Activity[]
+
   @@index([createdById])
   @@index([status])
   @@index([category])
@@ -111,5 +121,24 @@ model Comment {
 
   @@index([issueId])
 
+  @@index([userId])
+}
+
+model Activity {
+  id String @id @default(cuid())
+
+  type ActivityType
+
+  message String
+
+  issueId String
+  issue Issue @relation(fields: [issueId], references: [id], onDelete: Cascade)
+
+  userId String
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+
+  @@index([issueId])
   @@index([userId])
 }

@@ -1,4 +1,5 @@
 import { Response } from "express";
+import { asyncHandler } from "../../shared/utils/asyncHandler";
 import { AuthRequest } from "../../middlewares/auth.middleware";
 import { createCommentSchema } from "./comment.validation";
 import {
@@ -8,8 +9,8 @@ import {
   deleteCommentService,
 } from "./comment.service";
 
-export const createComment = async (req: AuthRequest, res: Response) => {
-  try {
+export const createComment = asyncHandler(
+  async (req: AuthRequest, res: Response) => {
     const issueId = Array.isArray(req.params.id)
       ? req.params.id[0]
       : req.params.id;
@@ -23,13 +24,8 @@ export const createComment = async (req: AuthRequest, res: Response) => {
       message: "Comment added successfully",
       data: comment,
     });
-  } catch (error: any) {
-    return res.status(400).json({
-      success: false,
-      message: error.message,
-    });
-  }
-};
+  },
+);
 
 export const getComments = async (req: AuthRequest, res: Response) => {
   try {

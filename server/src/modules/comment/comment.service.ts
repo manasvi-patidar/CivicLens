@@ -6,27 +6,43 @@ import {
   deleteComment,
 } from "./comment.repository";
 import { AppError } from "../../shared/errors/AppError";
+import { createActivityService } from "../activity/activity.service";
 
 export const createCommentService = async (
   issueId: string,
   userId: string,
   content: string,
 ) => {
-  return createComment({
+  const comment = await createComment({
     content,
-
     issue: {
       connect: {
         id: issueId,
       },
     },
-
     user: {
       connect: {
         id: userId,
       },
     },
   });
+
+  await createActivityService({
+    type: "COMMENT_ADDED",
+    message: "Comment added",
+    issue: {
+      connect: {
+        id: issueId,
+      },
+    },
+    user: {
+      connect: {
+        id: userId,
+      },
+    },
+  });
+
+  return comment;
 };
 
 export const getCommentsService = async (issueId: string) => {

@@ -1,5 +1,6 @@
 import { CreateIssueInput } from "./issue.validation";
 import { Prisma } from "@prisma/client";
+import { createActivityService } from "../activity/activity.service";
 
 import {
   createIssue,
@@ -25,7 +26,24 @@ export const createIssueService = async (
     },
   };
 
-  return createIssue(issueData);
+  const issue = await createIssue(issueData);
+
+  await createActivityService({
+    type: "ISSUE_CREATED",
+    message: "Issue created",
+    issue: {
+      connect: {
+        id: issue.id,
+      },
+    },
+    user: {
+      connect: {
+        id: userId,
+      },
+    },
+  });
+
+  return issue;
 };
 
 export const getAllIssuesService = async (
