@@ -1,4 +1,5 @@
 import { Request, Response } from "express";
+import { asyncHandler } from "../../shared/utils/asyncHandler";
 import { AuthRequest } from "../../middlewares/auth.middleware";
 import { createIssueSchema, updateIssueStatusSchema } from "./issue.validation";
 import {
@@ -6,6 +7,7 @@ import {
   getAllIssuesService,
   getIssueByIdService,
   updateIssueStatusService,
+  assignIssueService,
 } from "./issue.service";
 
 export const createIssue = async (req: AuthRequest, res: Response) => {
@@ -106,3 +108,21 @@ export const updateIssueStatus = async (req: Request, res: Response) => {
     });
   }
 };
+
+export const assignIssueController = asyncHandler(
+  async (req: AuthRequest, res: Response) => {
+    const issueId = Array.isArray(req.params.id)
+      ? req.params.id[0]
+      : req.params.id;
+
+    const { userId } = req.body;
+
+    const issue = await assignIssueService(issueId, userId);
+
+    return res.status(200).json({
+      success: true,
+      message: "Issue assigned successfully",
+      data: issue,
+    });
+  },
+);

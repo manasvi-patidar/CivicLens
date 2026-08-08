@@ -1,4 +1,5 @@
 import { CreateIssueInput } from "./issue.validation";
+import prisma from "../../config/prisma";
 import { Prisma } from "@prisma/client";
 import { createActivityService } from "../activity/activity.service";
 
@@ -7,6 +8,7 @@ import {
   getAllIssues,
   getIssueById,
   updateIssueStatus,
+  assignIssue,
 } from "./issue.repository";
 
 export const createIssueService = async (
@@ -90,6 +92,47 @@ export const updateIssueStatusService = async (
     user: {
       connect: {
         id: issue.createdById,
+      },
+    },
+  });
+
+  return updatedIssue;
+};
+
+export const assignIssueService = async (issueId: string, userId: string) => {
+  const issue = await getIssueById(issueId);
+
+  if (!issue) {
+    throw new Error("Issue not found");
+  }
+
+  const user = await prisma.user.findUnique({
+    where: {
+      id: userId,
+    },
+  });
+
+  if (!user) {
+    throw new Error("User not found");
+  }
+
+  if (user.role !== "VOLUNTEER" && user.role !== "AUTHORITY") {
+    throw new Error("Issue can only be assigned to a volunteer or authority");
+  }
+
+  const updatedIssue = await assignIssue(issueId, userId);
+
+  await createActivityService({
+    type: "ISSUE_ASSIGNED",
+    message: `Issue assigned to ${user.name}`,
+    issue: {
+      connect: {
+        id: issueId,
+      },
+    },
+    user: {
+      connect: {
+        id: userId,
       },
     },
   });

@@ -4,6 +4,7 @@ import {
   getAllIssues,
   getIssueById,
   updateIssueStatus,
+  assignIssueController,
 } from "./issue.controller";
 import { protect, authorize } from "../../middlewares/auth.middleware";
 import { uploadIssueImage } from "../../middlewares/upload.middleware";
@@ -26,5 +27,7 @@ router.patch(
   authorize("ADMIN", "AUTHORITY"),
   updateIssueStatus,
 );
+
+router.patch("/:id/assign", protect, assignIssueController);
 
 export default router;

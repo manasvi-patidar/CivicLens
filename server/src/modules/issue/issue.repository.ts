@@ -99,3 +99,28 @@ export const updateIssueStatus = async (
     },
   });
 };
+
+export const assignIssue = async (issueId: string, userId: string) => {
+  return prisma.issue.update({
+    where: {
+      id: issueId,
+    },
+    data: {
+      assignedTo: {
+        connect: {
+          id: userId,
+        },
+      },
+    },
+    include: {
+      assignedTo: {
+        select: {
+          id: true,
+          name: true,
+          email: true,
+          role: true,
+        },
+      },
+    },
+  });
+};
