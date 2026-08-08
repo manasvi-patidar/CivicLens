@@ -77,5 +77,22 @@ export const updateIssueStatusService = async (
     throw new Error("Issue not found");
   }
 
-  return updateIssueStatus(id, status);
+  const updatedIssue = await updateIssueStatus(id, status);
+
+  await createActivityService({
+    type: "STATUS_UPDATED",
+    message: `Status changed from ${issue.status} to ${status}`,
+    issue: {
+      connect: {
+        id: issue.id,
+      },
+    },
+    user: {
+      connect: {
+        id: issue.createdById,
+      },
+    },
+  });
+
+  return updatedIssue;
 };
