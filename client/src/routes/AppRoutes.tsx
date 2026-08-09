@@ -11,9 +11,18 @@ function AppRoutes() {
         <Route
           path="/"
           element={
-            <div>
-              <h2>CivicLens</h2>
-              <p>Open Civic Intelligence Platform</p>
+            <div className="card max-w-md p-8">
+              <h2 className="text-2xl font-semibold text-teal-700">
+                CivicLens
+              </h2>
+
+              <p className="text-muted mt-2">
+                Open Civic Intelligence Platform
+              </p>
+
+              <button className="btn btn-primary mt-6">
+                Test CivicLens UI
+              </button>
             </div>
           }
         />

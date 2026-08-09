@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../hooks/useAuth";
-import "./LoginPage.css";
 
 function LoginPage() {
   const { login } = useAuth();
@@ -24,35 +23,58 @@ function LoginPage() {
   };
 
   return (
-    <div className="login-page">
-      <div className="login-card">
-        <div className="login-header">
-          <h1>CivicLens</h1>
-          <p>Open Civic Intelligence Platform</p>
+    <div className="flex min-h-screen items-center justify-center bg-slate-50 px-6">
+      <div className="card w-full max-w-md p-8">
+        <div className="mb-8">
+          <h1 className="text-3xl font-bold tracking-tight text-teal-700">
+            CivicLens
+          </h1>
+
+          <p className="text-muted mt-2">Open Civic Intelligence Platform</p>
         </div>
 
-        <form onSubmit={handleSubmit}>
-          <label>Email</label>
-          <input
-            type="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            placeholder="Enter your email"
-            required
-          />
+        <form onSubmit={handleSubmit} className="space-y-5">
+          <div>
+            <label htmlFor="email" className="label">
+              Email
+            </label>
 
-          <label>Password</label>
-          <input
-            type="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            placeholder="Enter your password"
-            required
-          />
+            <input
+              id="email"
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder="you@example.com"
+              required
+              className="input"
+            />
+          </div>
 
-          {error && <p className="login-error">{error}</p>}
+          <div>
+            <label htmlFor="password" className="label">
+              Password
+            </label>
 
-          <button type="submit">Login</button>
+            <input
+              id="password"
+              type="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              placeholder="Enter your password"
+              required
+              className="input"
+            />
+          </div>
+
+          {error && (
+            <p className="rounded-lg bg-red-50 px-3 py-2.5 text-sm text-red-600">
+              {error}
+            </p>
+          )}
+
+          <button type="submit" className="btn btn-primary w-full">
+            Sign in
+          </button>
         </form>
       </div>
     </div>
