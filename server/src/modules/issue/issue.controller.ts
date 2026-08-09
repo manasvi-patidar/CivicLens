@@ -8,6 +8,7 @@ import {
   getIssueByIdService,
   updateIssueStatusService,
   assignIssueService,
+  deleteIssueService,
 } from "./issue.service";
 
 export const createIssue = async (req: AuthRequest, res: Response) => {
@@ -123,6 +124,21 @@ export const assignIssueController = asyncHandler(
       success: true,
       message: "Issue assigned successfully",
       data: issue,
+    });
+  },
+);
+
+export const deleteIssueController = asyncHandler(
+  async (req: AuthRequest, res: Response) => {
+    const issueId = Array.isArray(req.params.id)
+      ? req.params.id[0]
+      : req.params.id;
+
+    await deleteIssueService(issueId);
+
+    return res.status(200).json({
+      success: true,
+      message: "Issue deleted successfully",
     });
   },
 );

@@ -9,6 +9,7 @@ import {
   getIssueById,
   updateIssueStatus,
   assignIssue,
+  deleteIssue,
 } from "./issue.repository";
 
 export const createIssueService = async (
@@ -138,4 +139,14 @@ export const assignIssueService = async (issueId: string, userId: string) => {
   });
 
   return updatedIssue;
+};
+
+export const deleteIssueService = async (id: string) => {
+  const issue = await getIssueById(id);
+
+  if (!issue) {
+    throw new Error("Issue not found");
+  }
+
+  return deleteIssue(id);
 };

@@ -124,3 +124,11 @@ export const assignIssue = async (issueId: string, userId: string) => {
     },
   });
 };
+
+export const deleteIssue = async (id: string) => {
+  return prisma.issue.delete({
+    where: {
+      id,
+    },
+  });
+};
