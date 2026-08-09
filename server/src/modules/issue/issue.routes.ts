@@ -28,6 +28,6 @@ router.patch(
   updateIssueStatus,
 );
 
-router.patch("/:id/assign", protect, assignIssueController);
+router.patch("/:id/assign", protect, authorize("ADMIN"), assignIssueController);
 
 export default router;
