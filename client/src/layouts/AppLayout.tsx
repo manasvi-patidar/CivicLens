@@ -1,16 +1,20 @@
 import { Outlet } from "react-router-dom";
+import Navbar from "../components/layout/Navbar";
+import Sidebar from "../components/layout/Sidebar";
+import "./AppLayout.css";
 
 function AppLayout() {
   return (
     <div className="app-layout">
-      <header>
-        <h1>CivicLens</h1>
-        <p>Open Civic Intelligence Platform</p>
-      </header>
+      <Navbar />
 
-      <main>
-        <Outlet />
-      </main>
+      <div className="app-body">
+        <Sidebar />
+
+        <main className="app-content">
+          <Outlet />
+        </main>
+      </div>
     </div>
   );
 }

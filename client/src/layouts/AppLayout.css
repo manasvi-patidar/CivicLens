@@ -1,0 +1,12 @@
+.app-layout {
+  min-height: 100vh;
+}
+
+.app-body {
+  display: flex;
+}
+
+.app-content {
+  flex: 1;
+  padding: 32px;
+}
