@@ -1,11 +1,13 @@
 import { Routes, Route } from "react-router-dom";
 import AppLayout from "../layouts/AppLayout";
 import LoginPage from "../pages/auth/LoginPage";
+import RegisterPage from "../pages/auth/RegisterPage";
 
 function AppRoutes() {
   return (
     <Routes>
       <Route path="/login" element={<LoginPage />} />
+      <Route path="/register" element={<RegisterPage />} />
 
       <Route element={<AppLayout />}>
         <Route
