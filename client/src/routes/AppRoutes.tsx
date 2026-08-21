@@ -3,6 +3,7 @@ import AppLayout from "../layouts/AppLayout";
 import LoginPage from "../pages/auth/LoginPage";
 import RegisterPage from "../pages/auth/RegisterPage";
 import ProtectedRoute from "./ProtectedRoute";
+import DashboardPage from "../pages/dashboard/DashboardPage";
 
 function AppRoutes() {
   return (
@@ -12,24 +13,7 @@ function AppRoutes() {
 
       <Route element={<ProtectedRoute />}>
         <Route element={<AppLayout />}>
-          <Route
-            path="/"
-            element={
-              <div className="card max-w-md p-8">
-                <h2 className="text-2xl font-semibold text-teal-700">
-                  CivicLens
-                </h2>
-
-                <p className="text-muted mt-2">
-                  Open Civic Intelligence Platform
-                </p>
-
-                <button className="btn btn-primary mt-6">
-                  Test CivicLens UI
-                </button>
-              </div>
-            }
-          />
+          <Route path="/" element={<DashboardPage />} />
 
           <Route
             path="/issues"
