@@ -5,6 +5,7 @@ import RegisterPage from "../pages/auth/RegisterPage";
 import ProtectedRoute from "./ProtectedRoute";
 import DashboardPage from "../pages/dashboard/DashboardPage";
 import IssueDetailsPage from "../pages/issues/IssueDetailsPage";
+import IssuesPage from "../pages/issues/IssuesPage";
 
 function AppRoutes() {
   return (
@@ -16,14 +17,7 @@ function AppRoutes() {
         <Route element={<AppLayout />}>
           <Route path="/" element={<DashboardPage />} />
 
-          <Route
-            path="/issues"
-            element={
-              <div className="card p-8">
-                <h2 className="text-2xl font-semibold text-teal-700">Issues</h2>
-              </div>
-            }
-          />
+          <Route path="/issues" element={<IssuesPage />} />
 
           <Route path="/issues/:id" element={<IssueDetailsPage />} />
 
