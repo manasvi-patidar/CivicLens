@@ -4,6 +4,7 @@ import LoginPage from "../pages/auth/LoginPage";
 import RegisterPage from "../pages/auth/RegisterPage";
 import ProtectedRoute from "./ProtectedRoute";
 import DashboardPage from "../pages/dashboard/DashboardPage";
+import IssueDetailsPage from "../pages/issues/IssueDetailsPage";
 
 function AppRoutes() {
   return (
@@ -23,6 +24,8 @@ function AppRoutes() {
               </div>
             }
           />
+
+          <Route path="/issues/:id" element={<IssueDetailsPage />} />
 
           <Route
             path="/profile"
