@@ -1,18 +1,32 @@
 import { useState } from "react";
 import type { FormEvent } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import type { IssueCategory } from "../../types/issue";
+import { createIssue } from "../../services/issue.service";
 
 function CreateIssuePage() {
+  const navigate = useNavigate();
+
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [category, setCategory] = useState<IssueCategory | "">("");
+  const [priority, setPriority] = useState<"LOW" | "MEDIUM" | "HIGH" | "">("");
+
+  const [address, setAddress] = useState("");
+  const [latitude, setLatitude] = useState("");
+  const [longitude, setLongitude] = useState("");
 
   const [errors, setErrors] = useState<{
     title?: string;
     description?: string;
     category?: string;
+    priority?: string;
+    latitude?: string;
+    longitude?: string;
   }>({});
+
+  const [submitting, setSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState("");
 
   const validate = () => {
     const newErrors: typeof errors = {};
@@ -21,16 +35,36 @@ function CreateIssuePage() {
       newErrors.title = "Please enter an issue title.";
     } else if (title.trim().length < 5) {
       newErrors.title = "Title must be at least 5 characters.";
+    } else if (title.trim().length > 100) {
+      newErrors.title = "Title cannot exceed 100 characters.";
     }
 
     if (!description.trim()) {
       newErrors.description = "Please describe the civic issue.";
-    } else if (description.trim().length < 20) {
-      newErrors.description = "Description must be at least 20 characters.";
+    } else if (description.trim().length < 10) {
+      newErrors.description = "Description must be at least 10 characters.";
+    } else if (description.trim().length > 1000) {
+      newErrors.description = "Description cannot exceed 1000 characters.";
     }
 
     if (!category) {
       newErrors.category = "Please select an issue category.";
+    }
+
+    if (!priority) {
+      newErrors.priority = "Please select a priority.";
+    }
+
+    if (!latitude.trim()) {
+      newErrors.latitude = "Latitude is required.";
+    } else if (Number.isNaN(Number(latitude))) {
+      newErrors.latitude = "Latitude must be a valid number.";
+    }
+
+    if (!longitude.trim()) {
+      newErrors.longitude = "Longitude is required.";
+    } else if (Number.isNaN(Number(longitude))) {
+      newErrors.longitude = "Longitude must be a valid number.";
     }
 
     setErrors(newErrors);
@@ -38,14 +72,55 @@ function CreateIssuePage() {
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
+
+    setSubmitError("");
 
     if (!validate()) {
       return;
     }
 
-    // Backend integration will be added in Segment 5B.
+    if (!category || !priority) {
+      return;
+    }
+
+    try {
+      setSubmitting(true);
+
+      const response = await createIssue({
+        title: title.trim(),
+        description: description.trim(),
+        category,
+        priority,
+        latitude: Number(latitude),
+        longitude: Number(longitude),
+        address: address.trim() || undefined,
+      });
+
+      navigate(`/issues/${response.data.id}`);
+    } catch (error: unknown) {
+      if (error && typeof error === "object" && "response" in error) {
+        const response = (
+          error as {
+            response?: {
+              data?: {
+                message?: string;
+              };
+            };
+          }
+        ).response;
+
+        setSubmitError(
+          response?.data?.message ||
+            "Unable to create the issue. Please try again.",
+        );
+      } else {
+        setSubmitError("Unable to create the issue. Please try again.");
+      }
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   return (
@@ -113,64 +188,154 @@ function CreateIssuePage() {
             )}
 
             <span className="text-xs text-slate-400">
-              {description.length} characters
+              {description.length}/1000
             </span>
           </div>
         </div>
 
-        <div>
-          <label htmlFor="category" className="label">
-            Category
-          </label>
+        <div className="grid gap-6 sm:grid-cols-2">
+          <div>
+            <label htmlFor="category" className="label">
+              Category
+            </label>
 
-          <select
-            id="category"
-            value={category}
-            onChange={(event) =>
-              setCategory(event.target.value as IssueCategory | "")
-            }
-            className="input"
-          >
-            <option value="">Select a category</option>
-            <option value="ROAD">Road</option>
-            <option value="WATER">Water</option>
-            <option value="ELECTRICITY">Electricity</option>
-            <option value="GARBAGE">Garbage</option>
-            <option value="STREETLIGHT">Streetlight</option>
-            <option value="DRAINAGE">Drainage</option>
-            <option value="PUBLIC_PROPERTY">Public Property</option>
-            <option value="OTHER">Other</option>
-          </select>
+            <select
+              id="category"
+              value={category}
+              onChange={(event) =>
+                setCategory(event.target.value as IssueCategory | "")
+              }
+              className="input"
+            >
+              <option value="">Select a category</option>
+              <option value="ROAD">Road</option>
+              <option value="WATER">Water</option>
+              <option value="ELECTRICITY">Electricity</option>
+              <option value="GARBAGE">Garbage</option>
+              <option value="STREETLIGHT">Streetlight</option>
+              <option value="DRAINAGE">Drainage</option>
+              <option value="PUBLIC_PROPERTY">Public Property</option>
+              <option value="OTHER">Other</option>
+            </select>
 
-          {errors.category && (
-            <p className="mt-1 text-sm text-red-600">{errors.category}</p>
-          )}
+            {errors.category && (
+              <p className="mt-1 text-sm text-red-600">{errors.category}</p>
+            )}
+          </div>
+
+          <div>
+            <label htmlFor="priority" className="label">
+              Priority
+            </label>
+
+            <select
+              id="priority"
+              value={priority}
+              onChange={(event) =>
+                setPriority(
+                  event.target.value as "LOW" | "MEDIUM" | "HIGH" | "",
+                )
+              }
+              className="input"
+            >
+              <option value="">Select priority</option>
+              <option value="LOW">Low</option>
+              <option value="MEDIUM">Medium</option>
+              <option value="HIGH">High</option>
+            </select>
+
+            {errors.priority && (
+              <p className="mt-1 text-sm text-red-600">{errors.priority}</p>
+            )}
+          </div>
         </div>
 
-        <div className="rounded-lg border border-slate-200 bg-slate-50 p-4">
-          <p className="text-sm font-medium text-slate-700">Location</p>
+        <div>
+          <label htmlFor="address" className="label">
+            Address
+          </label>
 
-          <p className="mt-1 text-sm text-slate-500">
-            Location selection will be added in the next part of the reporting
-            workflow.
-          </p>
+          <input
+            id="address"
+            type="text"
+            value={address}
+            onChange={(event) => setAddress(event.target.value)}
+            placeholder="e.g. MG Road, near City Mall"
+            className="input"
+          />
+
+          <p className="mt-1 text-xs text-slate-400">Optional</p>
+        </div>
+
+        <div>
+          <p className="label">Location coordinates</p>
+
+          <div className="grid gap-4 sm:grid-cols-2">
+            <div>
+              <label htmlFor="latitude" className="text-sm text-slate-600">
+                Latitude
+              </label>
+
+              <input
+                id="latitude"
+                type="text"
+                value={latitude}
+                onChange={(event) => setLatitude(event.target.value)}
+                placeholder="e.g. 28.6139"
+                className="input mt-1"
+              />
+
+              {errors.latitude && (
+                <p className="mt-1 text-sm text-red-600">{errors.latitude}</p>
+              )}
+            </div>
+
+            <div>
+              <label htmlFor="longitude" className="text-sm text-slate-600">
+                Longitude
+              </label>
+
+              <input
+                id="longitude"
+                type="text"
+                value={longitude}
+                onChange={(event) => setLongitude(event.target.value)}
+                placeholder="e.g. 77.2090"
+                className="input mt-1"
+              />
+
+              {errors.longitude && (
+                <p className="mt-1 text-sm text-red-600">{errors.longitude}</p>
+              )}
+            </div>
+          </div>
         </div>
 
         <div className="rounded-lg border border-slate-200 bg-slate-50 p-4">
           <p className="text-sm font-medium text-slate-700">Evidence image</p>
 
           <p className="mt-1 text-sm text-slate-500">
-            Image upload will be connected after the basic form is working.
+            Image upload will be connected in the next segment.
           </p>
         </div>
+
+        {submitError && (
+          <div className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-600">
+            {submitError}
+          </div>
+        )}
 
         <div className="flex flex-col-reverse gap-3 border-t border-slate-100 pt-6 sm:flex-row sm:justify-end">
           <Link to="/issues" className="btn btn-secondary">
             Cancel
           </Link>
 
-          <button type="submit" className="btn btn-primary">
-            Continue
+          <button
+            type="submit"
+            disabled={submitting}
+            className="btn btn-primary disabled:cursor-not-allowed disabled:opacity-60"
+          >
+            {submitting ? "Creating issue..." : "Create Issue"}
           </button>
         </div>
       </form>

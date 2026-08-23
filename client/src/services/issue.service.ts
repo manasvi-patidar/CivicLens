@@ -19,6 +19,22 @@ interface IssueResponse {
   data: Issue;
 }
 
+interface CreateIssueData {
+  title: string;
+  description: string;
+  category: IssueCategory;
+  priority: "LOW" | "MEDIUM" | "HIGH";
+  latitude: number;
+  longitude: number;
+  address?: string;
+}
+
+interface CreateIssueResponse {
+  success: boolean;
+  message: string;
+  data: Issue;
+}
+
 export const getIssues = async (
   params?: GetIssuesParams,
 ): Promise<IssueListResponse> => {
@@ -33,4 +49,12 @@ export const getIssueById = async (id: string): Promise<Issue> => {
   const response = await api.get<IssueResponse>(`/issues/${id}`);
 
   return response.data.data;
+};
+
+export const createIssue = async (
+  data: CreateIssueData,
+): Promise<CreateIssueResponse> => {
+  const response = await api.post<CreateIssueResponse>("/issues", data);
+
+  return response.data;
 };
