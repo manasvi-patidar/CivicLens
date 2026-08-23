@@ -1,8 +1,12 @@
-import { useState } from "react";
-import type { FormEvent } from "react";
+import { useEffect, useState } from "react";
+import type { FormEvent, ChangeEvent } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import type { IssueCategory } from "../../types/issue";
 import { createIssue } from "../../services/issue.service";
+
+const MAX_IMAGE_SIZE = 5 * 1024 * 1024;
+
+const ALLOWED_IMAGE_TYPES = ["image/jpeg", "image/png", "image/webp"];
 
 function CreateIssuePage() {
   const navigate = useNavigate();
@@ -16,6 +20,9 @@ function CreateIssuePage() {
   const [latitude, setLatitude] = useState("");
   const [longitude, setLongitude] = useState("");
 
+  const [image, setImage] = useState<File | null>(null);
+  const [imagePreview, setImagePreview] = useState("");
+
   const [errors, setErrors] = useState<{
     title?: string;
     description?: string;
@@ -23,10 +30,19 @@ function CreateIssuePage() {
     priority?: string;
     latitude?: string;
     longitude?: string;
+    image?: string;
   }>({});
 
   const [submitting, setSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState("");
+
+  useEffect(() => {
+    return () => {
+      if (imagePreview) {
+        URL.revokeObjectURL(imagePreview);
+      }
+    };
+  }, [imagePreview]);
 
   const validate = () => {
     const newErrors: typeof errors = {};
@@ -72,6 +88,61 @@ function CreateIssuePage() {
     return Object.keys(newErrors).length === 0;
   };
 
+  const handleImageChange = (event: ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+
+    setErrors((current) => ({
+      ...current,
+      image: undefined,
+    }));
+
+    if (!file) {
+      setImage(null);
+      setImagePreview("");
+      return;
+    }
+
+    if (!ALLOWED_IMAGE_TYPES.includes(file.type)) {
+      setImage(null);
+      setImagePreview("");
+
+      setErrors((current) => ({
+        ...current,
+        image: "Please select a JPG, PNG, or WebP image.",
+      }));
+
+      event.target.value = "";
+      return;
+    }
+
+    if (file.size > MAX_IMAGE_SIZE) {
+      setImage(null);
+      setImagePreview("");
+
+      setErrors((current) => ({
+        ...current,
+        image: "Image size must be less than 5 MB.",
+      }));
+
+      event.target.value = "";
+      return;
+    }
+
+    setImage(file);
+    setImagePreview(URL.createObjectURL(file));
+  };
+
+  const removeImage = () => {
+    setImage(null);
+    setImagePreview("");
+
+    const input = document.getElementById("image") as HTMLInputElement | null;
+
+    if (input) {
+      input.value = "";
+    }
+  };
+
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
@@ -88,15 +159,24 @@ function CreateIssuePage() {
     try {
       setSubmitting(true);
 
-      const response = await createIssue({
-        title: title.trim(),
-        description: description.trim(),
-        category,
-        priority,
-        latitude: Number(latitude),
-        longitude: Number(longitude),
-        address: address.trim() || undefined,
-      });
+      const formData = new FormData();
+
+      formData.append("title", title.trim());
+      formData.append("description", description.trim());
+      formData.append("category", category);
+      formData.append("priority", priority);
+      formData.append("latitude", latitude);
+      formData.append("longitude", longitude);
+
+      if (address.trim()) {
+        formData.append("address", address.trim());
+      }
+
+      if (image) {
+        formData.append("image", image);
+      }
+
+      const response = await createIssue(formData);
 
       navigate(`/issues/${response.data.id}`);
     } catch (error: unknown) {
@@ -311,12 +391,55 @@ function CreateIssuePage() {
           </div>
         </div>
 
-        <div className="rounded-lg border border-slate-200 bg-slate-50 p-4">
-          <p className="text-sm font-medium text-slate-700">Evidence image</p>
+        <div>
+          <p className="label">Evidence image</p>
 
-          <p className="mt-1 text-sm text-slate-500">
-            Image upload will be connected in the next segment.
-          </p>
+          {!imagePreview ? (
+            <label
+              htmlFor="image"
+              className="flex cursor-pointer flex-col items-center justify-center rounded-lg border-2 border-dashed border-slate-200 bg-slate-50 px-6 py-10 text-center transition hover:border-teal-300 hover:bg-teal-50/30"
+            >
+              <span className="text-sm font-medium text-slate-700">
+                Choose an image
+              </span>
+
+              <span className="mt-1 text-xs text-slate-400">
+                JPG, PNG or WebP · Maximum 5 MB
+              </span>
+
+              <input
+                id="image"
+                type="file"
+                accept="image/jpeg,image/png,image/webp"
+                onChange={handleImageChange}
+                className="hidden"
+              />
+            </label>
+          ) : (
+            <div className="rounded-lg border border-slate-200 p-3">
+              <img
+                src={imagePreview}
+                alt="Selected issue"
+                className="mx-auto max-h-72 rounded-lg object-contain"
+              />
+
+              <div className="mt-3 flex items-center justify-between">
+                <p className="truncate text-sm text-slate-500">{image?.name}</p>
+
+                <button
+                  type="button"
+                  onClick={removeImage}
+                  className="ml-4 text-sm font-medium text-red-600 hover:text-red-700"
+                >
+                  Remove
+                </button>
+              </div>
+            </div>
+          )}
+
+          {errors.image && (
+            <p className="mt-1 text-sm text-red-600">{errors.image}</p>
+          )}
         </div>
 
         {submitError && (
