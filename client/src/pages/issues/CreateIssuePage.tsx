@@ -23,6 +23,9 @@ function CreateIssuePage() {
   const [image, setImage] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState("");
 
+  const [locationLoading, setLocationLoading] = useState(false);
+  const [locationError, setLocationError] = useState("");
+
   const [errors, setErrors] = useState<{
     title?: string;
     description?: string;
@@ -141,6 +144,54 @@ function CreateIssuePage() {
     if (input) {
       input.value = "";
     }
+  };
+
+  const handleUseMyLocation = () => {
+    setLocationError("");
+
+    if (!navigator.geolocation) {
+      setLocationError("Location is not supported by your browser.");
+      return;
+    }
+
+    setLocationLoading(true);
+
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        setLatitude(position.coords.latitude.toString());
+        setLongitude(position.coords.longitude.toString());
+        setLocationLoading(false);
+      },
+      (error) => {
+        setLocationLoading(false);
+
+        switch (error.code) {
+          case error.PERMISSION_DENIED:
+            setLocationError(
+              "Location permission was denied. You can enter the coordinates manually.",
+            );
+            break;
+
+          case error.POSITION_UNAVAILABLE:
+            setLocationError(
+              "Your location could not be determined. Please enter the coordinates manually.",
+            );
+            break;
+
+          case error.TIMEOUT:
+            setLocationError("Location request timed out. Please try again.");
+            break;
+
+          default:
+            setLocationError("Unable to determine your location.");
+        }
+      },
+      {
+        enableHighAccuracy: true,
+        timeout: 10000,
+        maximumAge: 0,
+      },
+    );
   };
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
@@ -348,7 +399,29 @@ function CreateIssuePage() {
         </div>
 
         <div>
-          <p className="label">Location coordinates</p>
+          <div className="flex items-center justify-between gap-4">
+            <p className="label">Location</p>
+
+            <button
+              type="button"
+              onClick={handleUseMyLocation}
+              disabled={locationLoading}
+              className="text-sm font-medium text-teal-700 hover:text-teal-800 disabled:cursor-not-allowed disabled:opacity-60"
+            >
+              {locationLoading ? "Getting location..." : "Use my location"}
+            </button>
+          </div>
+
+          <p className="mb-4 text-xs text-slate-400">
+            Automatically detect your current coordinates or enter them
+            manually.
+          </p>
+
+          {locationError && (
+            <div className="mb-4 rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-700">
+              {locationError}
+            </div>
+          )}
 
           <div className="grid gap-4 sm:grid-cols-2">
             <div>
