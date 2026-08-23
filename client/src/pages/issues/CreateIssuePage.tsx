@@ -39,6 +39,8 @@ function CreateIssuePage() {
   const [submitting, setSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState("");
 
+  const [submitSuccess, setSubmitSuccess] = useState("");
+
   useEffect(() => {
     return () => {
       if (imagePreview) {
@@ -198,6 +200,7 @@ function CreateIssuePage() {
     event.preventDefault();
 
     setSubmitError("");
+    setSubmitSuccess("");
 
     if (!validate()) {
       return;
@@ -229,7 +232,11 @@ function CreateIssuePage() {
 
       const response = await createIssue(formData);
 
-      navigate(`/issues/${response.data.id}`);
+      setSubmitSuccess("Issue created successfully!");
+
+      setTimeout(() => {
+        navigate(`/issues/${response.data.id}`);
+      }, 700);
     } catch (error: unknown) {
       if (error && typeof error === "object" && "response" in error) {
         const response = (
@@ -514,6 +521,12 @@ function CreateIssuePage() {
             <p className="mt-1 text-sm text-red-600">{errors.image}</p>
           )}
         </div>
+
+        {submitSuccess && (
+          <div className="rounded-lg border border-teal-200 bg-teal-50 px-4 py-3 text-sm text-teal-700">
+            {submitSuccess}
+          </div>
+        )}
 
         {submitError && (
           <div className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-600">
