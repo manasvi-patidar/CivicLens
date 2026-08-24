@@ -1,8 +1,16 @@
+import { useState } from "react";
 import { Link } from "react-router-dom";
 import { useAuth } from "../../hooks/useAuth";
 
 function ProfilePage() {
-  const { user, loading } = useAuth();
+  const { user, loading, updateProfile } = useAuth();
+
+  const [editing, setEditing] = useState(false);
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [saving, setSaving] = useState(false);
+  const [editError, setEditError] = useState("");
+  const [editSuccess, setEditSuccess] = useState("");
 
   if (loading) {
     return (
@@ -51,6 +59,69 @@ function ProfilePage() {
 
   const roleLabel = user.role.charAt(0) + user.role.slice(1).toLowerCase();
 
+  const handleEdit = () => {
+    setName(user.name);
+    setEmail(user.email);
+    setEditError("");
+    setEditSuccess("");
+    setEditing(true);
+  };
+
+  const handleCancel = () => {
+    setName(user.name);
+    setEmail(user.email);
+    setEditError("");
+    setEditSuccess("");
+    setEditing(false);
+  };
+
+  const handleSaveProfile = async () => {
+    setEditError("");
+    setEditSuccess("");
+
+    if (name.trim().length < 3) {
+      setEditError("Name must be at least 3 characters.");
+      return;
+    }
+
+    if (!email.trim()) {
+      setEditError("Email address is required.");
+      return;
+    }
+
+    try {
+      setSaving(true);
+
+      await updateProfile({
+        name: name.trim(),
+        email: email.trim(),
+      });
+
+      setEditSuccess("Profile updated successfully.");
+      setEditing(false);
+    } catch (error: unknown) {
+      if (error && typeof error === "object" && "response" in error) {
+        const response = (
+          error as {
+            response?: {
+              data?: {
+                message?: string;
+              };
+            };
+          }
+        ).response;
+
+        setEditError(
+          response?.data?.message || "Unable to update your profile.",
+        );
+      } else {
+        setEditError("Unable to update your profile.");
+      }
+    } finally {
+      setSaving(false);
+    }
+  };
+
   return (
     <div className="mx-auto max-w-4xl space-y-6">
       <div>
@@ -66,6 +137,12 @@ function ProfilePage() {
         </p>
       </div>
 
+      {editSuccess && (
+        <div className="rounded-lg border border-teal-200 bg-teal-50 px-4 py-3 text-sm text-teal-700">
+          {editSuccess}
+        </div>
+      )}
+
       <div className="card overflow-hidden">
         <div className="border-b border-slate-100 px-7 py-7">
           <div className="flex flex-col gap-5 sm:flex-row sm:items-center">
@@ -73,7 +150,7 @@ function ProfilePage() {
               {initials}
             </div>
 
-            <div>
+            <div className="flex-1">
               <h2 className="text-2xl font-semibold text-slate-900">
                 {user.name}
               </h2>
@@ -92,6 +169,16 @@ function ProfilePage() {
                 )}
               </div>
             </div>
+
+            {!editing && (
+              <button
+                type="button"
+                onClick={handleEdit}
+                className="btn btn-secondary sm:ml-auto"
+              >
+                Edit Profile
+              </button>
+            )}
           </div>
         </div>
 
@@ -131,6 +218,95 @@ function ProfilePage() {
           </div>
         </div>
       </div>
+
+      {editing && (
+        <div className="card p-7">
+          <div className="flex items-center justify-between">
+            <div>
+              <h2 className="text-lg font-semibold text-slate-900">
+                Edit Profile
+              </h2>
+
+              <p className="mt-1 text-sm text-slate-500">
+                Update your basic account information.
+              </p>
+            </div>
+
+            <button
+              type="button"
+              onClick={handleCancel}
+              disabled={saving}
+              className="text-sm font-medium text-slate-500 hover:text-slate-700 disabled:cursor-not-allowed disabled:opacity-50"
+            >
+              Cancel
+            </button>
+          </div>
+
+          <div className="mt-6 space-y-5">
+            <div>
+              <label
+                htmlFor="profile-name"
+                className="mb-2 block text-sm font-medium text-slate-700"
+              >
+                Full name
+              </label>
+
+              <input
+                id="profile-name"
+                type="text"
+                value={name}
+                onChange={(event) => setName(event.target.value)}
+                disabled={saving}
+                className="input"
+              />
+            </div>
+
+            <div>
+              <label
+                htmlFor="profile-email"
+                className="mb-2 block text-sm font-medium text-slate-700"
+              >
+                Email address
+              </label>
+
+              <input
+                id="profile-email"
+                type="email"
+                value={email}
+                onChange={(event) => setEmail(event.target.value)}
+                disabled={saving}
+                className="input"
+              />
+            </div>
+
+            {editError && (
+              <div className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-600">
+                {editError}
+              </div>
+            )}
+
+            <div className="flex gap-3">
+              <button
+                type="button"
+                onClick={handleSaveProfile}
+                disabled={saving}
+                className="btn btn-primary disabled:cursor-not-allowed disabled:opacity-60"
+              >
+                {saving ? "Saving..." : "Save Changes"}
+              </button>
+
+              <button
+                type="button"
+                onClick={handleCancel}
+                disabled={saving}
+                className="btn btn-secondary disabled:cursor-not-allowed disabled:opacity-60"
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       <div className="card p-7">
         <h2 className="text-lg font-semibold text-slate-900">

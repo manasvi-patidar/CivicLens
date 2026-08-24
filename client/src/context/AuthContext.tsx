@@ -4,6 +4,7 @@ import {
   loginUser,
   logoutUser,
   registerUser,
+  updateCurrentUser,
 } from "../services/auth.service";
 import { AuthContext } from "./auth-context";
 
@@ -48,6 +49,11 @@ export function AuthProvider({ children }: AuthProviderProps) {
     setUser(registeredUser);
   };
 
+  const updateProfile = async (data: { name?: string; email?: string }) => {
+    const updatedUser = await updateCurrentUser(data);
+    setUser(updatedUser);
+  };
+
   const logout = () => {
     logoutUser();
     setUser(null);
@@ -60,6 +66,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
         loading,
         login,
         register,
+        updateProfile,
         logout,
       }}
     >

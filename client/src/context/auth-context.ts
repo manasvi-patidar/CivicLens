@@ -3,9 +3,15 @@ import type { User, LoginInput, RegisterInput } from "../types/auth";
 
 export interface AuthContextType {
   user: User | null;
+
   loading: boolean;
+
   login: (data: LoginInput) => Promise<void>;
+
   register: (data: RegisterInput) => Promise<void>;
+
+  updateProfile: (data: { name?: string; email?: string }) => Promise<void>;
+
   logout: () => void;
 }
 

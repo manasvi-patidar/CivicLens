@@ -24,6 +24,15 @@ export const getCurrentUser = async () => {
   return response.data.data;
 };
 
+export const updateCurrentUser = async (data: {
+  name?: string;
+  email?: string;
+}) => {
+  const response = await api.patch("/auth/me", data);
+
+  return response.data.data;
+};
+
 export const logoutUser = () => {
   localStorage.removeItem("token");
 };
