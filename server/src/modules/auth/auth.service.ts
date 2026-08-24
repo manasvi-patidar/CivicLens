@@ -1,4 +1,9 @@
-import { createUser, findUserByEmail, findUserById } from "./auth.repository";
+import {
+  createUser,
+  findUserByEmail,
+  findUserById,
+  updateUser,
+} from "./auth.repository";
 import { AppError } from "../../shared/errors/AppError";
 import { generateToken } from "../../shared/utils/jwt";
 import bcrypt from "bcrypt";
@@ -82,5 +87,41 @@ export const getCurrentUser = async (userId: string) => {
     reputation: user.reputation,
     isVerified: user.isVerified,
     createdAt: user.createdAt,
+  };
+};
+
+interface UpdateProfileInput {
+  name?: string;
+  email?: string;
+}
+
+export const updateCurrentUser = async (
+  userId: string,
+  data: UpdateProfileInput,
+) => {
+  const user = await findUserById(userId);
+
+  if (!user) {
+    throw new AppError("User not found", 404);
+  }
+
+  if (data.email && data.email !== user.email) {
+    const existingUser = await findUserByEmail(data.email);
+
+    if (existingUser && existingUser.id !== userId) {
+      throw new AppError("Email already in use", 409);
+    }
+  }
+
+  const updatedUser = await updateUser(userId, data);
+
+  return {
+    id: updatedUser.id,
+    name: updatedUser.name,
+    email: updatedUser.email,
+    role: updatedUser.role,
+    reputation: updatedUser.reputation,
+    isVerified: updatedUser.isVerified,
+    createdAt: updatedUser.createdAt,
   };
 };

@@ -29,3 +29,18 @@ export const findUserById = async (id: string) => {
     },
   });
 };
+
+export const updateUser = async (
+  id: string,
+  data: {
+    name?: string;
+    email?: string;
+  },
+) => {
+  return prisma.user.update({
+    where: {
+      id,
+    },
+    data,
+  });
+};

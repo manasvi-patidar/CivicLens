@@ -1,6 +1,15 @@
 import { Request, Response } from "express";
-import { registerSchema, loginSchema } from "./auth.validation";
-import { registerUser, loginUser, getCurrentUser } from "./auth.service";
+import {
+  registerSchema,
+  loginSchema,
+  updateProfileSchema,
+} from "./auth.validation";
+import {
+  registerUser,
+  loginUser,
+  getCurrentUser,
+  updateCurrentUser,
+} from "./auth.service";
 import { asyncHandler } from "../../shared/errors/asyncHandler";
 import { AuthRequest } from "../../middlewares/auth.middleware";
 
@@ -36,3 +45,17 @@ export const getMe = asyncHandler(async (req: AuthRequest, res) => {
     data: user,
   });
 });
+
+export const updateMe = asyncHandler(
+  async (req: AuthRequest, res: Response) => {
+    const validatedData = updateProfileSchema.parse(req.body);
+
+    const user = await updateCurrentUser(req.user!.id, validatedData);
+
+    return res.status(200).json({
+      success: true,
+      message: "Profile updated successfully",
+      data: user,
+    });
+  },
+);
