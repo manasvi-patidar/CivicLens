@@ -1,9 +1,12 @@
-import { useState } from "react";
-import { Link } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../../hooks/useAuth";
+import { getIssues } from "../../services/issue.service";
+import type { Issue } from "../../types/issue";
 
 function ProfilePage() {
   const { user, loading, updateProfile } = useAuth();
+  const navigate = useNavigate();
 
   const [editing, setEditing] = useState(false);
   const [name, setName] = useState("");
@@ -11,6 +14,40 @@ function ProfilePage() {
   const [saving, setSaving] = useState(false);
   const [editError, setEditError] = useState("");
   const [editSuccess, setEditSuccess] = useState("");
+
+  const [myIssues, setMyIssues] = useState<Issue[]>([]);
+  const [issuesLoading, setIssuesLoading] = useState(false);
+  const [issuesError, setIssuesError] = useState("");
+
+  useEffect(() => {
+    if (!user) {
+      return;
+    }
+
+    const loadMyIssues = async () => {
+      try {
+        setIssuesLoading(true);
+        setIssuesError("");
+
+        const response = await getIssues({
+          page: 1,
+          limit: 100,
+        });
+
+        const userIssues = response.data.filter(
+          (issue) => issue.createdBy?.id === user.id,
+        );
+
+        setMyIssues(userIssues);
+      } catch {
+        setIssuesError("Unable to load your reported issues.");
+      } finally {
+        setIssuesLoading(false);
+      }
+    };
+
+    loadMyIssues();
+  }, [user]);
 
   if (loading) {
     return (
@@ -120,6 +157,29 @@ function ProfilePage() {
     } finally {
       setSaving(false);
     }
+  };
+
+  const getStatusLabel = (status: Issue["status"]) => {
+    switch (status) {
+      case "IN_PROGRESS":
+        return "In Progress";
+
+      case "RESOLVED":
+        return "Resolved";
+
+      case "REJECTED":
+        return "Rejected";
+
+      default:
+        return "Open";
+    }
+  };
+
+  const getCategoryLabel = (category: Issue["category"]) => {
+    return category
+      .split("_")
+      .map((word) => word.charAt(0) + word.slice(1).toLowerCase())
+      .join(" ");
   };
 
   return (
@@ -307,6 +367,111 @@ function ProfilePage() {
           </div>
         </div>
       )}
+
+      <div className="card p-7">
+        <div className="flex items-center justify-between">
+          <div>
+            <h2 className="text-lg font-semibold text-slate-900">
+              My Reported Issues
+            </h2>
+
+            <p className="mt-1 text-sm text-slate-500">
+              Issues you have reported through CivicLens.
+            </p>
+          </div>
+
+          <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-medium text-slate-600">
+            {myIssues.length}
+          </span>
+        </div>
+
+        {issuesLoading && (
+          <div className="mt-6 rounded-lg bg-slate-50 px-4 py-5 text-center">
+            <p className="text-sm text-slate-500">
+              Loading your reported issues...
+            </p>
+          </div>
+        )}
+
+        {issuesError && !issuesLoading && (
+          <div className="mt-6 rounded-lg border border-red-200 bg-red-50 px-4 py-4">
+            <p className="text-sm text-red-600">{issuesError}</p>
+          </div>
+        )}
+
+        {!issuesLoading && !issuesError && myIssues.length === 0 && (
+          <div className="mt-6 rounded-lg bg-slate-50 px-5 py-8 text-center">
+            <h3 className="text-sm font-semibold text-slate-800">
+              No reported issues yet
+            </h3>
+
+            <p className="mt-1 text-sm text-slate-500">
+              When you report a civic issue, it will appear here.
+            </p>
+
+            <Link
+              to="/issues/create"
+              className="btn btn-primary mt-4 inline-flex"
+            >
+              Report an Issue
+            </Link>
+          </div>
+        )}
+
+        {!issuesLoading && myIssues.length > 0 && (
+          <div className="mt-6 space-y-3">
+            {myIssues.map((issue) => (
+              <button
+                key={issue.id}
+                type="button"
+                onClick={() => navigate(`/issues/${issue.id}`)}
+                className="w-full rounded-xl border border-slate-200 bg-white p-4 text-left transition hover:border-teal-300 hover:bg-teal-50/30"
+              >
+                <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                  <div className="min-w-0">
+                    <h3 className="truncate font-medium text-slate-900">
+                      {issue.title}
+                    </h3>
+
+                    <div className="mt-2 flex flex-wrap gap-2">
+                      <span className="rounded-full bg-slate-100 px-2.5 py-1 text-xs font-medium text-slate-600">
+                        {getCategoryLabel(issue.category)}
+                      </span>
+
+                      <span className="rounded-full bg-slate-100 px-2.5 py-1 text-xs font-medium text-slate-600">
+                        {issue.priority}
+                      </span>
+                    </div>
+                  </div>
+
+                  <span
+                    className={`w-fit rounded-full px-3 py-1 text-xs font-medium ${
+                      issue.status === "RESOLVED"
+                        ? "bg-teal-50 text-teal-700"
+                        : issue.status === "IN_PROGRESS"
+                          ? "bg-amber-50 text-amber-700"
+                          : issue.status === "REJECTED"
+                            ? "bg-red-50 text-red-700"
+                            : "bg-blue-50 text-blue-700"
+                    }`}
+                  >
+                    {getStatusLabel(issue.status)}
+                  </span>
+                </div>
+
+                <p className="mt-3 text-xs text-slate-400">
+                  Reported{" "}
+                  {new Date(issue.createdAt).toLocaleDateString("en-IN", {
+                    day: "numeric",
+                    month: "short",
+                    year: "numeric",
+                  })}
+                </p>
+              </button>
+            ))}
+          </div>
+        )}
+      </div>
 
       <div className="card p-7">
         <h2 className="text-lg font-semibold text-slate-900">
