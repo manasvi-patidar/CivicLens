@@ -18,6 +18,19 @@ function Sidebar() {
         </NavLink>
 
         <NavLink
+          to="/issues/new"
+          className={({ isActive }) =>
+            `rounded-lg px-3 py-2.5 text-sm font-medium transition ${
+              isActive
+                ? "bg-teal-50 text-teal-700"
+                : "text-slate-600 hover:bg-slate-50 hover:text-slate-900"
+            }`
+          }
+        >
+          Report Issue
+        </NavLink>
+
+        <NavLink
           to="/issues"
           className={({ isActive }) =>
             `rounded-lg px-3 py-2.5 text-sm font-medium transition ${
