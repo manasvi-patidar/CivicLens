@@ -133,6 +133,15 @@ function IssueDetailsPage() {
               </p>
             </div>
           </div>
+
+          <div className="mt-7 flex justify-end border-t border-slate-100 pt-6">
+            <button
+              type="button"
+              className="rounded-lg border border-red-200 px-4 py-2.5 text-sm font-medium text-red-600 transition hover:bg-red-50"
+            >
+              Delete Issue
+            </button>
+          </div>
         </div>
       </div>
     </div>
