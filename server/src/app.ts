@@ -10,6 +10,7 @@ import authRoutes from "./modules/auth/auth.routes";
 import issueRoutes from "./modules/issue/issue.routes";
 import commentManageRoutes from "./modules/comment/comment.manage.routes";
 import activityRoutes from "./modules/activity/activity.routes";
+import contributionRoutes from "./modules/contribution/contribution.routes";
 
 const app = express();
 
@@ -25,6 +26,7 @@ app.use("/api/auth", authRoutes);
 app.use("/api/issues", issueRoutes);
 app.use("/api/comments", commentManageRoutes);
 app.use("/api", activityRoutes);
+app.use("/api/contributions", contributionRoutes);
 app.use(errorHandler);
 
 app.get("/", (_req, res) => {

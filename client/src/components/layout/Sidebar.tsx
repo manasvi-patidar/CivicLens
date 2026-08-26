@@ -31,6 +31,19 @@ function Sidebar() {
         </NavLink>
 
         <NavLink
+          to="/contributions"
+          className={({ isActive }) =>
+            `rounded-lg px-3 py-2.5 text-sm font-medium transition ${
+              isActive
+                ? "bg-teal-50 text-teal-700"
+                : "text-slate-600 hover:bg-slate-50 hover:text-slate-900"
+            }`
+          }
+        >
+          Contributions
+        </NavLink>
+
+        <NavLink
           to="/profile"
           className={({ isActive }) =>
             `rounded-lg px-3 py-2.5 text-sm font-medium transition ${
