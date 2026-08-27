@@ -52,3 +52,7 @@ export const createIssue = async (
 
   return response.data;
 };
+
+export const deleteIssue = async (id: string): Promise<void> => {
+  await api.delete(`/issues/${id}`);
+};
