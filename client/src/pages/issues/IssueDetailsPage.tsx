@@ -1,10 +1,12 @@
 import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
-import { getIssueById, deleteIssue } from "../../services/issue.service";
+import { deleteIssue, getIssueById } from "../../services/issue.service";
+import { useAuth } from "../../hooks/useAuth";
 import type { Issue } from "../../types/issue";
 
 function IssueDetailsPage() {
   const { id } = useParams<{ id: string }>();
+  const { user } = useAuth();
 
   const [issue, setIssue] = useState<Issue | null>(null);
   const [loading, setLoading] = useState(true);
@@ -93,6 +95,10 @@ function IssueDetailsPage() {
     );
   }
 
+  const canDelete =
+    user?.role === "ADMIN" ||
+    (user?.id === issue.createdById && issue.status === "OPEN");
+
   return (
     <div className="space-y-6">
       <Link
@@ -168,16 +174,18 @@ function IssueDetailsPage() {
             </div>
           </div>
 
-          <div className="mt-7 flex justify-end border-t border-slate-100 pt-6">
-            <button
-              type="button"
-              onClick={handleDelete}
-              disabled={deleting}
-              className="rounded-lg border border-red-200 px-4 py-2.5 text-sm font-medium text-red-600 transition hover:bg-red-50 disabled:cursor-not-allowed disabled:opacity-50"
-            >
-              {deleting ? "Deleting..." : "Delete Issue"}
-            </button>
-          </div>
+          {canDelete && (
+            <div className="mt-7 flex justify-end border-t border-slate-100 pt-6">
+              <button
+                type="button"
+                onClick={handleDelete}
+                disabled={deleting}
+                className="rounded-lg border border-red-200 px-4 py-2.5 text-sm font-medium text-red-600 transition hover:bg-red-50 disabled:cursor-not-allowed disabled:opacity-50"
+              >
+                {deleting ? "Deleting..." : "Delete Issue"}
+              </button>
+            </div>
+          )}
         </div>
       </div>
     </div>
