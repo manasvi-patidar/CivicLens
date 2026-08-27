@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
-import { getIssueById } from "../../services/issue.service";
+import { getIssueById, deleteIssue } from "../../services/issue.service";
 import type { Issue } from "../../types/issue";
 
 function IssueDetailsPage() {
@@ -9,6 +9,7 @@ function IssueDetailsPage() {
   const [issue, setIssue] = useState<Issue | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [deleting, setDeleting] = useState(false);
 
   useEffect(() => {
     const loadIssue = async () => {
@@ -32,6 +33,39 @@ function IssueDetailsPage() {
 
     loadIssue();
   }, [id]);
+
+  const handleDelete = async () => {
+    if (!id) {
+      return;
+    }
+
+    try {
+      setDeleting(true);
+      setError("");
+
+      await deleteIssue(id);
+
+      window.location.href = "/issues";
+    } catch (error) {
+      if (typeof error === "object" && error !== null && "response" in error) {
+        const response = (
+          error as {
+            response?: {
+              data?: {
+                message?: string;
+              };
+            };
+          }
+        ).response;
+
+        setError(response?.data?.message || "Unable to delete this issue.");
+      } else {
+        setError("Unable to delete this issue.");
+      }
+    } finally {
+      setDeleting(false);
+    }
+  };
 
   if (loading) {
     return (
@@ -137,9 +171,11 @@ function IssueDetailsPage() {
           <div className="mt-7 flex justify-end border-t border-slate-100 pt-6">
             <button
               type="button"
-              className="rounded-lg border border-red-200 px-4 py-2.5 text-sm font-medium text-red-600 transition hover:bg-red-50"
+              onClick={handleDelete}
+              disabled={deleting}
+              className="rounded-lg border border-red-200 px-4 py-2.5 text-sm font-medium text-red-600 transition hover:bg-red-50 disabled:cursor-not-allowed disabled:opacity-50"
             >
-              Delete Issue
+              {deleting ? "Deleting..." : "Delete Issue"}
             </button>
           </div>
         </div>
