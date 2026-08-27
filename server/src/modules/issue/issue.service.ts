@@ -141,11 +141,29 @@ export const assignIssueService = async (issueId: string, userId: string) => {
   return updatedIssue;
 };
 
-export const deleteIssueService = async (id: string) => {
+export const deleteIssueService = async (
+  id: string,
+  userId: string,
+  userRole: string,
+) => {
   const issue = await getIssueById(id);
 
   if (!issue) {
     throw new Error("Issue not found");
+  }
+
+  // Admin can delete any issue
+  if (userRole === "ADMIN") {
+    return deleteIssue(id);
+  }
+
+  // Issue creator can delete their own issue only while it is OPEN
+  if (issue.createdById !== userId) {
+    throw new Error("You can only delete your own issues");
+  }
+
+  if (issue.status !== "OPEN") {
+    throw new Error("Only open issues can be deleted");
   }
 
   return deleteIssue(id);

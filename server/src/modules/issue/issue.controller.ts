@@ -134,7 +134,7 @@ export const deleteIssueController = asyncHandler(
       ? req.params.id[0]
       : req.params.id;
 
-    await deleteIssueService(issueId);
+    await deleteIssueService(issueId, req.user!.id, req.user!.role);
 
     return res.status(200).json({
       success: true,
