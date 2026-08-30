@@ -25,6 +25,22 @@ interface CreateIssueResponse {
   data: Issue;
 }
 
+export interface UpdateIssueInput {
+  title?: string;
+  description?: string;
+  category?: IssueCategory;
+  priority?: "LOW" | "MEDIUM" | "HIGH";
+  latitude?: number;
+  longitude?: number;
+  address?: string;
+}
+
+interface UpdateIssueResponse {
+  success: boolean;
+  message: string;
+  data: Issue;
+}
+
 export const getIssues = async (
   params?: GetIssuesParams,
 ): Promise<IssueListResponse> => {
@@ -55,4 +71,13 @@ export const createIssue = async (
 
 export const deleteIssue = async (id: string): Promise<void> => {
   await api.delete(`/issues/${id}`);
+};
+
+export const updateIssue = async (
+  id: string,
+  data: UpdateIssueInput,
+): Promise<UpdateIssueResponse> => {
+  const response = await api.patch<UpdateIssueResponse>(`/issues/${id}`, data);
+
+  return response.data;
 };
