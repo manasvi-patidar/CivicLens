@@ -10,6 +10,7 @@ import {
   updateIssueStatus,
   assignIssue,
   deleteIssue,
+  updateIssue,
 } from "./issue.repository";
 
 export const createIssueService = async (
@@ -167,4 +168,44 @@ export const deleteIssueService = async (
   }
 
   return deleteIssue(id);
+};
+
+export const updateIssueService = async (
+  issueId: string,
+  userId: string,
+  data: {
+    title?: string;
+    description?: string;
+    category?:
+      | "ROAD"
+      | "WATER"
+      | "ELECTRICITY"
+      | "GARBAGE"
+      | "STREETLIGHT"
+      | "DRAINAGE"
+      | "PUBLIC_PROPERTY"
+      | "OTHER";
+    priority?: "LOW" | "MEDIUM" | "HIGH";
+    latitude?: number;
+    longitude?: number;
+    address?: string;
+  },
+) => {
+  const issue = await getIssueById(issueId);
+
+  if (!issue) {
+    throw new Error("Issue not found");
+  }
+
+  if (issue.createdById !== userId) {
+    throw new Error("You can only edit your own issues");
+  }
+
+  if (issue.status !== "OPEN") {
+    throw new Error("Only open issues can be edited");
+  }
+
+  const updatedIssue = await updateIssue(issueId, data);
+
+  return updatedIssue;
 };
