@@ -132,3 +132,25 @@ export const deleteIssue = async (id: string) => {
     },
   });
 };
+
+export const updateIssue = async (
+  id: string,
+  data: Prisma.IssueUpdateInput,
+) => {
+  return prisma.issue.update({
+    where: {
+      id,
+    },
+    data,
+    include: {
+      createdBy: {
+        select: {
+          id: true,
+          name: true,
+          email: true,
+          role: true,
+        },
+      },
+    },
+  });
+};
