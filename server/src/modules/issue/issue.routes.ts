@@ -6,6 +6,7 @@ import {
   updateIssueStatus,
   assignIssueController,
   deleteIssueController,
+  updateIssueController,
 } from "./issue.controller";
 import { protect, authorize } from "../../middlewares/auth.middleware";
 import { uploadIssueImage } from "../../middlewares/upload.middleware";
@@ -20,6 +21,8 @@ router.post("/", protect, uploadIssueImage.single("image"), createIssue);
 router.use("/:id/comments", commentRoutes);
 
 router.get("/:id", getIssueById);
+
+router.patch("/:id", protect, updateIssueController);
 
 //only admin and authority can update the issue status
 router.patch(

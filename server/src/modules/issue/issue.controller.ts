@@ -2,6 +2,9 @@ import { Request, Response } from "express";
 import { asyncHandler } from "../../shared/utils/asyncHandler";
 import { AuthRequest } from "../../middlewares/auth.middleware";
 import { createIssueSchema, updateIssueStatusSchema } from "./issue.validation";
+import { updateIssueSchema } from "./issue.validation";
+import { updateIssueService } from "./issue.service";
+import { AppError } from "../../shared/errors/AppError";
 import {
   createIssueService,
   getAllIssuesService,
@@ -139,6 +142,30 @@ export const deleteIssueController = asyncHandler(
     return res.status(200).json({
       success: true,
       message: "Issue deleted successfully",
+    });
+  },
+);
+
+export const updateIssueController = asyncHandler(
+  async (req: AuthRequest, res: Response) => {
+    const id = req.params.id;
+
+    if (typeof id !== "string") {
+      throw new AppError("Invalid issue ID", 400);
+    }
+
+    const validatedData = updateIssueSchema.parse(req.body);
+
+    const updatedIssue = await updateIssueService(
+      id,
+      req.user!.id,
+      validatedData,
+    );
+
+    return res.status(200).json({
+      success: true,
+      message: "Issue updated successfully",
+      data: updatedIssue,
     });
   },
 );
