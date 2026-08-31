@@ -67,6 +67,7 @@ function IssueDetailsPage() {
       }
     } finally {
       setDeleting(false);
+      setShowDeleteConfirm(false);
     }
   };
 
@@ -97,6 +98,10 @@ function IssueDetailsPage() {
   }
 
   const canDelete =
+    user?.role === "ADMIN" ||
+    (user?.id === issue.createdById && issue.status === "OPEN");
+
+  const canEdit =
     user?.role === "ADMIN" ||
     (user?.id === issue.createdById && issue.status === "OPEN");
 
@@ -175,16 +180,27 @@ function IssueDetailsPage() {
             </div>
           </div>
 
-          {canDelete && (
-            <div className="mt-7 flex justify-end border-t border-slate-100 pt-6">
-              <button
-                type="button"
-                onClick={() => setShowDeleteConfirm(true)}
-                disabled={deleting}
-                className="rounded-lg border border-red-200 px-4 py-2.5 text-sm font-medium text-red-600 transition hover:bg-red-50 disabled:cursor-not-allowed disabled:opacity-50"
-              >
-                {deleting ? "Deleting..." : "Delete Issue"}
-              </button>
+          {(canEdit || canDelete) && (
+            <div className="mt-7 flex justify-end gap-3 border-t border-slate-100 pt-6">
+              {canEdit && (
+                <Link
+                  to={`/issues/${issue.id}/edit`}
+                  className="btn btn-secondary"
+                >
+                  Edit Issue
+                </Link>
+              )}
+
+              {canDelete && (
+                <button
+                  type="button"
+                  onClick={() => setShowDeleteConfirm(true)}
+                  disabled={deleting}
+                  className="rounded-lg border border-red-200 px-4 py-2.5 text-sm font-medium text-red-600 transition hover:bg-red-50 disabled:cursor-not-allowed disabled:opacity-50"
+                >
+                  {deleting ? "Deleting..." : "Delete Issue"}
+                </button>
+              )}
             </div>
           )}
         </div>
