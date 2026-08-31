@@ -1,7 +1,10 @@
 import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { deleteIssue, getIssueById } from "../../services/issue.service";
-import { getIssueComments } from "../../services/comment.service";
+import {
+  createComment,
+  getIssueComments,
+} from "../../services/comment.service";
 import { useAuth } from "../../hooks/useAuth";
 import type { Issue } from "../../types/issue";
 import type { Comment } from "../../types/comment";
@@ -18,6 +21,10 @@ function IssueDetailsPage() {
 
   const [error, setError] = useState("");
   const [commentsError, setCommentsError] = useState("");
+
+  const [commentContent, setCommentContent] = useState("");
+  const [postingComment, setPostingComment] = useState(false);
+  const [commentFormError, setCommentFormError] = useState("");
 
   const [deleting, setDeleting] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
@@ -66,6 +73,54 @@ function IssueDetailsPage() {
 
     loadComments();
   }, [id]);
+
+  const handleCommentSubmit = async (
+    event: React.FormEvent<HTMLFormElement>,
+  ) => {
+    event.preventDefault();
+
+    if (!id) {
+      return;
+    }
+
+    const trimmedContent = commentContent.trim();
+
+    if (!trimmedContent) {
+      setCommentFormError("Comment cannot be empty.");
+      return;
+    }
+
+    try {
+      setPostingComment(true);
+      setCommentFormError("");
+
+      const response = await createComment(id, trimmedContent);
+
+      setComments((currentComments) => [...currentComments, response.data]);
+
+      setCommentContent("");
+    } catch (error) {
+      if (typeof error === "object" && error !== null && "response" in error) {
+        const responseData = (
+          error as {
+            response?: {
+              data?: {
+                message?: string;
+              };
+            };
+          }
+        ).response;
+
+        setCommentFormError(
+          responseData?.data?.message || "Unable to post comment.",
+        );
+      } else {
+        setCommentFormError("Unable to post comment.");
+      }
+    } finally {
+      setPostingComment(false);
+    }
+  };
 
   const handleDelete = async () => {
     if (!id) {
@@ -251,7 +306,46 @@ function IssueDetailsPage() {
           </span>
         </div>
 
-        <div className="mt-6">
+        <form onSubmit={handleCommentSubmit} className="mt-6">
+          <label
+            htmlFor="comment"
+            className="mb-2 block text-sm font-medium text-slate-700"
+          >
+            Add a comment
+          </label>
+
+          <textarea
+            id="comment"
+            value={commentContent}
+            onChange={(event) => {
+              setCommentContent(event.target.value);
+
+              if (commentFormError) {
+                setCommentFormError("");
+              }
+            }}
+            placeholder="Share useful information about this issue..."
+            rows={4}
+            disabled={postingComment}
+            className="w-full rounded-lg border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-teal-400 focus:ring-2 focus:ring-teal-100 disabled:cursor-not-allowed disabled:bg-slate-50"
+          />
+
+          {commentFormError && (
+            <p className="mt-2 text-sm text-red-600">{commentFormError}</p>
+          )}
+
+          <div className="mt-3 flex justify-end">
+            <button
+              type="submit"
+              disabled={postingComment}
+              className="rounded-lg bg-teal-700 px-4 py-2.5 text-sm font-medium text-white transition hover:bg-teal-800 disabled:cursor-not-allowed disabled:opacity-50"
+            >
+              {postingComment ? "Posting..." : "Post Comment"}
+            </button>
+          </div>
+        </form>
+
+        <div className="mt-7 border-t border-slate-100 pt-6">
           {commentsLoading ? (
             <p className="text-sm text-slate-500">Loading comments...</p>
           ) : commentsError ? (
