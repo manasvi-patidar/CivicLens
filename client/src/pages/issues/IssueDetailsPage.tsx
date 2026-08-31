@@ -1,16 +1,24 @@
 import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { deleteIssue, getIssueById } from "../../services/issue.service";
+import { getIssueComments } from "../../services/comment.service";
 import { useAuth } from "../../hooks/useAuth";
 import type { Issue } from "../../types/issue";
+import type { Comment } from "../../types/comment";
 
 function IssueDetailsPage() {
   const { id } = useParams<{ id: string }>();
   const { user } = useAuth();
 
   const [issue, setIssue] = useState<Issue | null>(null);
+  const [comments, setComments] = useState<Comment[]>([]);
+
   const [loading, setLoading] = useState(true);
+  const [commentsLoading, setCommentsLoading] = useState(true);
+
   const [error, setError] = useState("");
+  const [commentsError, setCommentsError] = useState("");
+
   const [deleting, setDeleting] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
@@ -35,6 +43,28 @@ function IssueDetailsPage() {
     };
 
     loadIssue();
+  }, [id]);
+
+  useEffect(() => {
+    const loadComments = async () => {
+      if (!id) {
+        return;
+      }
+
+      try {
+        setCommentsLoading(true);
+        setCommentsError("");
+
+        const data = await getIssueComments(id);
+        setComments(data);
+      } catch {
+        setCommentsError("Unable to load comments.");
+      } finally {
+        setCommentsLoading(false);
+      }
+    };
+
+    loadComments();
   }, [id]);
 
   const handleDelete = async () => {
@@ -201,6 +231,69 @@ function IssueDetailsPage() {
                   {deleting ? "Deleting..." : "Delete Issue"}
                 </button>
               )}
+            </div>
+          )}
+        </div>
+      </div>
+
+      <div className="card p-7">
+        <div className="flex items-center justify-between">
+          <div>
+            <h2 className="text-xl font-semibold text-slate-900">Comments</h2>
+
+            <p className="mt-1 text-sm text-slate-500">
+              Community discussion about this issue.
+            </p>
+          </div>
+
+          <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-medium text-slate-600">
+            {comments.length}
+          </span>
+        </div>
+
+        <div className="mt-6">
+          {commentsLoading ? (
+            <p className="text-sm text-slate-500">Loading comments...</p>
+          ) : commentsError ? (
+            <p className="text-sm text-red-600">{commentsError}</p>
+          ) : comments.length === 0 ? (
+            <div className="rounded-lg border border-dashed border-slate-200 px-5 py-8 text-center">
+              <p className="text-sm font-medium text-slate-600">
+                No comments yet
+              </p>
+
+              <p className="mt-1 text-xs text-slate-400">
+                Be the first person to comment on this issue.
+              </p>
+            </div>
+          ) : (
+            <div className="space-y-4">
+              {comments.map((comment) => (
+                <div
+                  key={comment.id}
+                  className="rounded-lg border border-slate-100 bg-slate-50 p-4"
+                >
+                  <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
+                    <div>
+                      <p className="text-sm font-semibold text-slate-800">
+                        {comment.user.name}
+                      </p>
+
+                      <span className="mt-1 inline-block rounded-full bg-white px-2 py-0.5 text-[11px] font-medium text-slate-500">
+                        {comment.user.role}
+                      </span>
+                    </div>
+
+                    <p className="text-xs text-slate-400">
+                      {new Date(comment.createdAt).toLocaleString()}
+                    </p>
+                  </div>
+
+                  <p className="mt-3 text-sm leading-6 text-slate-700">
+                    {comment.content}
+                  </p>
+                </div>
+              ))}
             </div>
           )}
         </div>
