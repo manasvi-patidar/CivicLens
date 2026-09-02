@@ -6,6 +6,7 @@ import {
   createComment,
   deleteComment,
   getIssueComments,
+  updateComment,
 } from "../../services/comment.service";
 
 import { AuthContext } from "../../context/auth-context";
@@ -40,6 +41,12 @@ function IssueDetailsPage() {
   const [commentContent, setCommentContent] = useState("");
   const [postingComment, setPostingComment] = useState(false);
   const [commentFormError, setCommentFormError] = useState("");
+
+  const [editingCommentId, setEditingCommentId] = useState<string | null>(null);
+
+  const [editingCommentContent, setEditingCommentContent] = useState("");
+  const [updatingComment, setUpdatingComment] = useState(false);
+  const [commentEditError, setCommentEditError] = useState("");
 
   const [deletingCommentId, setDeletingCommentId] = useState<string | null>(
     null,
@@ -209,6 +216,50 @@ function IssueDetailsPage() {
     }
   };
 
+  const handleUpdateComment = async (commentId: string) => {
+    const trimmedContent = editingCommentContent.trim();
+
+    if (!trimmedContent) {
+      setCommentEditError("Comment cannot be empty.");
+      return;
+    }
+
+    try {
+      setUpdatingComment(true);
+      setCommentEditError("");
+
+      const updatedComment = await updateComment(commentId, trimmedContent);
+
+      setComments((currentComments) =>
+        currentComments.map((comment) =>
+          comment.id === commentId ? updatedComment : comment,
+        ),
+      );
+
+      setEditingCommentId(null);
+      setEditingCommentContent("");
+    } catch (error: unknown) {
+      const response =
+        typeof error === "object" && error !== null && "response" in error
+          ? (
+              error as {
+                response?: {
+                  data?: {
+                    message?: string;
+                  };
+                };
+              }
+            ).response
+          : undefined;
+
+      setCommentEditError(
+        response?.data?.message || "Unable to update comment.",
+      );
+    } finally {
+      setUpdatingComment(false);
+    }
+  };
+
   // Loading state
   if (loading) {
     return (
@@ -257,9 +308,26 @@ function IssueDetailsPage() {
         commentContent={commentContent}
         postingComment={postingComment}
         commentFormError={commentFormError}
+        editingCommentId={editingCommentId}
+        editingCommentContent={editingCommentContent}
+        updatingComment={updatingComment}
+        commentEditError={commentEditError}
+        userId={user?.id ?? null}
         onCommentContentChange={setCommentContent}
         onCommentSubmit={handleCommentSubmit}
         canDeleteComment={canDeleteComment}
+        onEditComment={(comment) => {
+          setEditingCommentId(comment.id);
+          setEditingCommentContent(comment.content);
+          setCommentEditError("");
+        }}
+        onCancelEditComment={() => {
+          setEditingCommentId(null);
+          setEditingCommentContent("");
+          setCommentEditError("");
+        }}
+        onEditingCommentContentChange={setEditingCommentContent}
+        onUpdateComment={handleUpdateComment}
         onDeleteComment={setCommentToDelete}
       />
 

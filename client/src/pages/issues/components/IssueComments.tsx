@@ -8,9 +8,24 @@ interface IssueCommentsProps {
   commentContent: string;
   postingComment: boolean;
   commentFormError: string;
+
+  editingCommentId: string | null;
+  editingCommentContent: string;
+  updatingComment: boolean;
+  commentEditError: string;
+
+  userId: string | null;
+
   onCommentContentChange: (content: string) => void;
   onCommentSubmit: (event: FormEvent<HTMLFormElement>) => void;
+
   canDeleteComment: (comment: Comment) => boolean;
+
+  onEditComment: (comment: Comment) => void;
+  onCancelEditComment: () => void;
+  onEditingCommentContentChange: (content: string) => void;
+  onUpdateComment: (commentId: string) => void;
+
   onDeleteComment: (commentId: string) => void;
 }
 
@@ -21,9 +36,18 @@ function IssueComments({
   commentContent,
   postingComment,
   commentFormError,
+  editingCommentId,
+  editingCommentContent,
+  updatingComment,
+  commentEditError,
+  userId,
   onCommentContentChange,
   onCommentSubmit,
   canDeleteComment,
+  onEditComment,
+  onCancelEditComment,
+  onEditingCommentContentChange,
+  onUpdateComment,
   onDeleteComment,
 }: IssueCommentsProps) {
   return (
@@ -109,22 +133,73 @@ function IssueComments({
                     </p>
                   </div>
 
-                  {/* Delete button is visible only to the
-                      comment owner or an ADMIN. */}
-                  {canDeleteComment(comment) && (
-                    <button
-                      type="button"
-                      onClick={() => onDeleteComment(comment.id)}
-                      className="shrink-0 text-xs font-semibold text-red-600 transition hover:text-red-700"
-                    >
-                      Delete
-                    </button>
-                  )}
+                  <div className="flex shrink-0 items-center gap-3">
+                    {comment.user.id === userId && (
+                      <button
+                        type="button"
+                        onClick={() => onEditComment(comment)}
+                        className="text-xs font-semibold text-teal-600 transition hover:text-teal-700"
+                      >
+                        Edit
+                      </button>
+                    )}
+
+                    {/* Delete button is visible only to the
+                        comment owner or an ADMIN. */}
+                    {canDeleteComment(comment) && (
+                      <button
+                        type="button"
+                        onClick={() => onDeleteComment(comment.id)}
+                        className="text-xs font-semibold text-red-600 transition hover:text-red-700"
+                      >
+                        Delete
+                      </button>
+                    )}
+                  </div>
                 </div>
 
-                <p className="mt-3 whitespace-pre-wrap text-sm leading-6 text-slate-700">
-                  {comment.content}
-                </p>
+                {editingCommentId === comment.id ? (
+                  <div className="mt-3">
+                    <textarea
+                      value={editingCommentContent}
+                      onChange={(event) =>
+                        onEditingCommentContentChange(event.target.value)
+                      }
+                      rows={3}
+                      className="w-full resize-none rounded-lg border border-slate-300 px-4 py-3 text-sm text-slate-700 outline-none transition focus:border-teal-500 focus:ring-2 focus:ring-teal-100"
+                    />
+
+                    {commentEditError && (
+                      <p className="mt-2 text-sm text-red-600">
+                        {commentEditError}
+                      </p>
+                    )}
+
+                    <div className="mt-3 flex justify-end gap-2">
+                      <button
+                        type="button"
+                        onClick={onCancelEditComment}
+                        disabled={updatingComment}
+                        className="rounded-lg border border-slate-300 bg-white px-3 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-50 disabled:opacity-60"
+                      >
+                        Cancel
+                      </button>
+
+                      <button
+                        type="button"
+                        onClick={() => onUpdateComment(comment.id)}
+                        disabled={updatingComment}
+                        className="rounded-lg bg-teal-600 px-3 py-2 text-xs font-semibold text-white hover:bg-teal-700 disabled:cursor-not-allowed disabled:opacity-60"
+                      >
+                        {updatingComment ? "Saving..." : "Save"}
+                      </button>
+                    </div>
+                  </div>
+                ) : (
+                  <p className="mt-3 whitespace-pre-wrap text-sm leading-6 text-slate-700">
+                    {comment.content}
+                  </p>
+                )}
               </div>
             ))}
           </div>
