@@ -15,6 +15,7 @@ interface IssueCommentsProps {
   commentEditError: string;
 
   userId: string | null;
+  userRole: string | null;
 
   onCommentContentChange: (content: string) => void;
   onCommentSubmit: (event: FormEvent<HTMLFormElement>) => void;
@@ -41,6 +42,7 @@ function IssueComments({
   updatingComment,
   commentEditError,
   userId,
+  userRole,
   onCommentContentChange,
   onCommentSubmit,
   canDeleteComment,
@@ -134,7 +136,7 @@ function IssueComments({
                   </div>
 
                   <div className="flex shrink-0 items-center gap-3">
-                    {comment.user.id === userId && (
+                    {(comment.user.id === userId || userRole === "ADMIN") && (
                       <button
                         type="button"
                         onClick={() => onEditComment(comment)}

@@ -43,7 +43,6 @@ function IssueDetailsPage() {
   const [commentFormError, setCommentFormError] = useState("");
 
   const [editingCommentId, setEditingCommentId] = useState<string | null>(null);
-
   const [editingCommentContent, setEditingCommentContent] = useState("");
   const [updatingComment, setUpdatingComment] = useState(false);
   const [commentEditError, setCommentEditError] = useState("");
@@ -300,7 +299,7 @@ function IssueDetailsPage() {
       {/* Issue Information */}
       <IssueInfo issue={issue} />
 
-      {/*Comments*/}
+      {/* Comments */}
       <IssueComments
         comments={comments}
         commentsLoading={commentsLoading}
@@ -313,6 +312,7 @@ function IssueDetailsPage() {
         updatingComment={updatingComment}
         commentEditError={commentEditError}
         userId={user?.id ?? null}
+        userRole={user?.role ?? null}
         onCommentContentChange={setCommentContent}
         onCommentSubmit={handleCommentSubmit}
         canDeleteComment={canDeleteComment}
