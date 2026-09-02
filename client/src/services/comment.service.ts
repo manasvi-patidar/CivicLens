@@ -30,3 +30,15 @@ export const createComment = async (
 export const deleteComment = async (id: string): Promise<void> => {
   await api.delete(`/comments/${id}`);
 };
+
+export const updateComment = async (
+  id: string,
+  content: string,
+): Promise<Comment> => {
+  const response = await api.patch<{ success: boolean; data: Comment }>(
+    `/comments/${id}`,
+    { content },
+  );
+
+  return response.data.data;
+};
