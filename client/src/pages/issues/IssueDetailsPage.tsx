@@ -1,7 +1,11 @@
 import { useContext, useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 
-import { deleteIssue, getIssueById } from "../../services/issue.service";
+import {
+  deleteIssue,
+  getIssueById,
+  updateIssueStatus,
+} from "../../services/issue.service";
 import {
   createComment,
   deleteComment,
@@ -11,7 +15,7 @@ import {
 
 import { AuthContext } from "../../context/auth-context";
 
-import type { Issue } from "../../types/issue";
+import type { Issue, IssueStatus } from "../../types/issue";
 import type { Comment } from "../../types/comment";
 
 import IssueHeader from "./components/IssueHeader";
@@ -29,6 +33,9 @@ function IssueDetailsPage() {
   const [issue, setIssue] = useState<Issue | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+
+  const [updatingStatus, setUpdatingStatus] = useState(false);
+  const [statusUpdateError, setStatusUpdateError] = useState("");
 
   const [deleting, setDeleting] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
@@ -259,6 +266,38 @@ function IssueDetailsPage() {
     }
   };
 
+  const handleStatusChange = async (status: IssueStatus) => {
+    if (!issue || status === issue.status) return;
+
+    try {
+      setUpdatingStatus(true);
+      setStatusUpdateError("");
+
+      const updatedIssue = await updateIssueStatus(issue.id, status);
+
+      setIssue(updatedIssue);
+    } catch (error: unknown) {
+      const response =
+        typeof error === "object" && error !== null && "response" in error
+          ? (
+              error as {
+                response?: {
+                  data?: {
+                    message?: string;
+                  };
+                };
+              }
+            ).response
+          : undefined;
+
+      setStatusUpdateError(
+        response?.data?.message || "Unable to update issue status.",
+      );
+    } finally {
+      setUpdatingStatus(false);
+    }
+  };
+
   // Loading state
   if (loading) {
     return (
@@ -297,7 +336,13 @@ function IssueDetailsPage() {
       />
 
       {/* Issue Information */}
-      <IssueInfo issue={issue} />
+      <IssueInfo
+        issue={issue}
+        canUpdateStatus={user?.role === "ADMIN" || user?.role === "AUTHORITY"}
+        updatingStatus={updatingStatus}
+        statusUpdateError={statusUpdateError}
+        onStatusChange={handleStatusChange}
+      />
 
       {/* Comments */}
       <IssueComments

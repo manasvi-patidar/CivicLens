@@ -1,10 +1,20 @@
-import type { Issue } from "../../../types/issue";
+import type { Issue, IssueStatus } from "../../../types/issue";
 
 interface IssueInfoProps {
   issue: Issue;
+  canUpdateStatus: boolean;
+  updatingStatus: boolean;
+  statusUpdateError: string;
+  onStatusChange: (status: IssueStatus) => void;
 }
 
-function IssueInfo({ issue }: IssueInfoProps) {
+function IssueInfo({
+  issue,
+  canUpdateStatus,
+  updatingStatus,
+  statusUpdateError,
+  onStatusChange,
+}: IssueInfoProps) {
   return (
     <div className="overflow-hidden rounded-xl border border-slate-200 bg-white">
       {issue.imageUrl && (
@@ -23,14 +33,43 @@ function IssueInfo({ issue }: IssueInfoProps) {
             {issue.category}
           </span>
 
-          <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-700">
-            {issue.status}
-          </span>
+          {canUpdateStatus ? (
+            <div className="flex items-center">
+              <label htmlFor="issue-status" className="sr-only">
+                Issue status
+              </label>
+
+              <select
+                id="issue-status"
+                value={issue.status}
+                onChange={(event) =>
+                  onStatusChange(event.target.value as IssueStatus)
+                }
+                disabled={updatingStatus}
+                className="rounded-full border border-slate-200 bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-700 outline-none transition focus:border-teal-500 focus:ring-2 focus:ring-teal-100 disabled:cursor-not-allowed disabled:opacity-60"
+              >
+                <option value="OPEN">OPEN</option>
+                <option value="IN_PROGRESS">IN_PROGRESS</option>
+                <option value="RESOLVED">RESOLVED</option>
+                <option value="REJECTED">REJECTED</option>
+              </select>
+            </div>
+          ) : (
+            <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-700">
+              {issue.status}
+            </span>
+          )}
 
           <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-700">
             {issue.priority}
           </span>
         </div>
+
+        {statusUpdateError && (
+          <p className="mt-3 text-sm font-medium text-red-600">
+            {statusUpdateError}
+          </p>
+        )}
 
         <div className="mt-6">
           <h2 className="text-sm font-semibold uppercase tracking-wide text-slate-500">
