@@ -16,6 +16,7 @@ import type { Comment } from "../../types/comment";
 import IssueHeader from "./components/IssueHeader";
 import IssueInfo from "./components/IssueInfo";
 import IssueComments from "./components/IssueComments";
+import ConfirmationModal from "./components/ConfirmationModal";
 
 function IssueDetailsPage() {
   const { id } = useParams<{ id: string }>();
@@ -275,78 +276,34 @@ function IssueDetailsPage() {
         onDeleteComment={setCommentToDelete}
       />
 
-      {/*Delete Issue Confirmation*/}
+      {/* Delete Issue Confirmation */}
       {showDeleteConfirm && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40 px-4">
-          <div className="w-full max-w-md rounded-xl bg-white p-6 shadow-xl">
-            <h2 className="text-lg font-bold text-slate-900">Delete issue?</h2>
-
-            <p className="mt-2 text-sm leading-6 text-slate-500">
-              This action cannot be undone. The issue and its related data will
-              be permanently deleted.
-            </p>
-
-            <div className="mt-6 flex justify-end gap-3">
-              <button
-                type="button"
-                onClick={() => setShowDeleteConfirm(false)}
-                disabled={deleting}
-                className="rounded-lg border border-slate-300 bg-white px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50 disabled:opacity-60"
-              >
-                Cancel
-              </button>
-
-              <button
-                type="button"
-                onClick={handleDelete}
-                disabled={deleting}
-                className="rounded-lg bg-red-600 px-4 py-2 text-sm font-semibold text-white hover:bg-red-700 disabled:cursor-not-allowed disabled:opacity-60"
-              >
-                {deleting ? "Deleting..." : "Delete Issue"}
-              </button>
-            </div>
-          </div>
-        </div>
+        <ConfirmationModal
+          title="Delete issue?"
+          message="This action cannot be undone. The issue and its related data will be permanently deleted."
+          confirmText="Delete Issue"
+          loadingText="Deleting..."
+          loading={deleting}
+          onCancel={() => setShowDeleteConfirm(false)}
+          onConfirm={handleDelete}
+        />
       )}
 
-      {/*Delete Comment Confirmation*/}
+      {/* Delete Comment Confirmation */}
       {commentToDelete && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40 px-4">
-          <div className="w-full max-w-md rounded-xl bg-white p-6 shadow-xl">
-            <h2 className="text-lg font-bold text-slate-900">
-              Delete comment?
-            </h2>
-
-            <p className="mt-2 text-sm leading-6 text-slate-500">
-              This comment will be permanently deleted. This action cannot be
-              undone.
-            </p>
-
-            <div className="mt-6 flex justify-end gap-3">
-              <button
-                type="button"
-                onClick={() => setCommentToDelete(null)}
-                disabled={deletingCommentId !== null}
-                className="rounded-lg border border-slate-300 bg-white px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50 disabled:opacity-60"
-              >
-                Cancel
-              </button>
-
-              <button
-                type="button"
-                onClick={() => {
-                  if (commentToDelete) {
-                    handleDeleteComment(commentToDelete);
-                  }
-                }}
-                disabled={deletingCommentId !== null}
-                className="rounded-lg bg-red-600 px-4 py-2 text-sm font-semibold text-white hover:bg-red-700 disabled:cursor-not-allowed disabled:opacity-60"
-              >
-                {deletingCommentId !== null ? "Deleting..." : "Delete Comment"}
-              </button>
-            </div>
-          </div>
-        </div>
+        <ConfirmationModal
+          title="Delete comment?"
+          message="This comment will be permanently deleted. This action cannot be undone."
+          confirmText="Delete Comment"
+          loadingText="Deleting..."
+          loading={deletingCommentId !== null}
+          onCancel={() => setCommentToDelete(null)}
+          onConfirm={() => {
+            if (commentToDelete) {
+              handleDeleteComment(commentToDelete);
+            }
+          }}
+        />
       )}
     </div>
   );
