@@ -1,24 +1,23 @@
 import { useContext, useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
+
 import { deleteIssue, getIssueById } from "../../services/issue.service";
 import {
   createComment,
   deleteComment,
   getIssueComments,
 } from "../../services/comment.service";
+
 import { AuthContext } from "../../context/auth-context";
+
 import type { Issue } from "../../types/issue";
 import type { Comment } from "../../types/comment";
 
 function IssueDetailsPage() {
   const { id } = useParams<{ id: string }>();
+
   const auth = useContext(AuthContext);
-
-  if (!auth) {
-    throw new Error("AuthContext is not available.");
-  }
-
-  const { user } = auth;
+  const user = auth?.user ?? null;
 
   const [issue, setIssue] = useState<Issue | null>(null);
   const [loading, setLoading] = useState(true);
@@ -28,6 +27,7 @@ function IssueDetailsPage() {
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
   const [comments, setComments] = useState<Comment[]>([]);
+
   const [commentsLoading, setCommentsLoading] = useState(true);
   const [commentsError, setCommentsError] = useState("");
 
@@ -40,6 +40,7 @@ function IssueDetailsPage() {
   );
   const [commentToDelete, setCommentToDelete] = useState<string | null>(null);
 
+  // Load issue
   useEffect(() => {
     const loadIssue = async () => {
       if (!id) return;
@@ -60,6 +61,7 @@ function IssueDetailsPage() {
     loadIssue();
   }, [id]);
 
+  // Load comments
   useEffect(() => {
     const loadComments = async () => {
       if (!id) return;
@@ -80,6 +82,7 @@ function IssueDetailsPage() {
     loadComments();
   }, [id]);
 
+  // Delete issue
   const handleDelete = async () => {
     if (!issue) return;
 
@@ -88,6 +91,7 @@ function IssueDetailsPage() {
 
       await deleteIssue(issue.id);
 
+      // Return to the issues list after successful deletion.
       window.location.href = "/issues";
     } catch (error: unknown) {
       const response =
@@ -110,6 +114,7 @@ function IssueDetailsPage() {
     }
   };
 
+  // Add comment
   const handleCommentSubmit = async (
     event: React.FormEvent<HTMLFormElement>,
   ) => {
@@ -153,6 +158,7 @@ function IssueDetailsPage() {
     }
   };
 
+  // Issue permissions
   const canDeleteIssue =
     user &&
     issue &&
@@ -165,15 +171,20 @@ function IssueDetailsPage() {
     (user.role === "ADMIN" ||
       (issue.createdById === user.id && issue.status === "OPEN"));
 
+  // Comment permissions
   const canDeleteComment = (comment: Comment) => {
     if (!user) return false;
 
     return user.role === "ADMIN" || comment.user.id === user.id;
   };
 
+  // Delete comment
   const handleDeleteComment = async (commentId: string) => {
     try {
       setDeletingCommentId(commentId);
+
+      // Remove any previous comment error before trying again.
+      setCommentsError("");
 
       await deleteComment(commentId);
 
@@ -181,7 +192,10 @@ function IssueDetailsPage() {
         currentComments.filter((comment) => comment.id !== commentId),
       );
 
+      // Close the confirmation dialog after successful deletion.
       setCommentToDelete(null);
+
+      setCommentsError("");
     } catch (error: unknown) {
       const response =
         typeof error === "object" && error !== null && "response" in error
@@ -202,6 +216,7 @@ function IssueDetailsPage() {
     }
   };
 
+  // Loading state
   if (loading) {
     return (
       <div className="flex min-h-[60vh] items-center justify-center">
@@ -231,7 +246,7 @@ function IssueDetailsPage() {
 
   return (
     <div className="mx-auto max-w-5xl space-y-6">
-      {/* Header */}
+      {/*Header*/}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
         <div>
           <Link
@@ -272,7 +287,7 @@ function IssueDetailsPage() {
         </div>
       </div>
 
-      {/* Issue Details */}
+      {/*Issue Details*/}
       <div className="overflow-hidden rounded-xl border border-slate-200 bg-white">
         {issue.imageUrl && (
           <div className="border-b border-slate-200 bg-slate-50 p-4">
@@ -324,6 +339,7 @@ function IssueDetailsPage() {
               <p className="text-xs font-semibold uppercase tracking-wide text-slate-400">
                 Latitude
               </p>
+
               <p className="mt-1 text-sm text-slate-700">{issue.latitude}</p>
             </div>
 
@@ -331,13 +347,14 @@ function IssueDetailsPage() {
               <p className="text-xs font-semibold uppercase tracking-wide text-slate-400">
                 Longitude
               </p>
+
               <p className="mt-1 text-sm text-slate-700">{issue.longitude}</p>
             </div>
           </div>
         </div>
       </div>
 
-      {/* Comments */}
+      {/*Comments*/}
       <section className="rounded-xl border border-slate-200 bg-white p-6">
         <div className="flex items-center justify-between">
           <div>
@@ -349,7 +366,7 @@ function IssueDetailsPage() {
           </div>
         </div>
 
-        {/* Add Comment */}
+        {/*Add Comment*/}
         <form onSubmit={handleCommentSubmit} className="mt-6">
           <label
             htmlFor="comment"
@@ -382,7 +399,7 @@ function IssueDetailsPage() {
           </div>
         </form>
 
-        {/* Comments List */}
+        {/*Comments List*/}
         <div className="mt-8">
           {commentsLoading ? (
             <p className="text-sm text-slate-500">Loading comments...</p>
@@ -420,6 +437,8 @@ function IssueDetailsPage() {
                       </p>
                     </div>
 
+                    {/* Delete button is visible only to the
+                        comment owner or an ADMIN. */}
                     {canDeleteComment(comment) && (
                       <button
                         type="button"
@@ -441,7 +460,7 @@ function IssueDetailsPage() {
         </div>
       </section>
 
-      {/* Delete Issue Confirmation */}
+      {/*Delete Issue Confirmation*/}
       {showDeleteConfirm && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40 px-4">
           <div className="w-full max-w-md rounded-xl bg-white p-6 shadow-xl">
@@ -475,7 +494,7 @@ function IssueDetailsPage() {
         </div>
       )}
 
-      {/* Delete Comment Confirmation */}
+      {/*Delete Comment Confirmation*/}
       {commentToDelete && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40 px-4">
           <div className="w-full max-w-md rounded-xl bg-white p-6 shadow-xl">
