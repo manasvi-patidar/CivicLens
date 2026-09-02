@@ -17,6 +17,7 @@ import IssueHeader from "./components/IssueHeader";
 import IssueInfo from "./components/IssueInfo";
 import IssueComments from "./components/IssueComments";
 import ConfirmationModal from "./components/ConfirmationModal";
+import { canDeleteIssue, canEditIssue } from "./utils/issue-permissions";
 
 function IssueDetailsPage() {
   const { id } = useParams<{ id: string }>();
@@ -163,19 +164,6 @@ function IssueDetailsPage() {
     }
   };
 
-  // Issue permissions
-  const canDeleteIssue =
-    user &&
-    issue &&
-    (user.role === "ADMIN" ||
-      (issue.createdById === user.id && issue.status === "OPEN"));
-
-  const canEditIssue =
-    user &&
-    issue &&
-    (user.role === "ADMIN" ||
-      (issue.createdById === user.id && issue.status === "OPEN"));
-
   // Comment permissions
   const canDeleteComment = (comment: Comment) => {
     if (!user) return false;
@@ -251,11 +239,10 @@ function IssueDetailsPage() {
 
   return (
     <div className="mx-auto max-w-5xl space-y-6">
-      {/* Issue Header */}
       <IssueHeader
         issue={issue}
-        canEditIssue={Boolean(canEditIssue)}
-        canDeleteIssue={Boolean(canDeleteIssue)}
+        canEditIssue={canEditIssue(user, issue)}
+        canDeleteIssue={canDeleteIssue(user, issue)}
         onDeleteClick={() => setShowDeleteConfirm(true)}
       />
 
