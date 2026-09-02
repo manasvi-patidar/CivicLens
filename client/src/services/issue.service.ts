@@ -81,3 +81,14 @@ export const updateIssue = async (
 
   return response.data;
 };
+
+export const updateIssueStatus = async (
+  id: string,
+  status: IssueStatus,
+): Promise<Issue> => {
+  const response = await api.patch<IssueResponse>(`/issues/${id}/status`, {
+    status,
+  });
+
+  return response.data.data;
+};
