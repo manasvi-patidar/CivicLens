@@ -92,3 +92,14 @@ export const updateIssueStatus = async (
 
   return response.data.data;
 };
+
+export const assignIssue = async (
+  id: string,
+  userId: string,
+): Promise<Issue> => {
+  const response = await api.patch<IssueResponse>(`/issues/${id}/assign`, {
+    userId,
+  });
+
+  return response.data.data;
+};
