@@ -16,6 +16,7 @@ export interface IssueUser {
   id: string;
   name: string;
   email?: string;
+  role?: "CITIZEN" | "VOLUNTEER" | "AUTHORITY" | "ADMIN";
 }
 
 export interface Issue {
@@ -31,6 +32,7 @@ export interface Issue {
   imageUrl: string | null;
   createdById: string;
   assignedToId: string | null;
+  assignedTo?: IssueUser | null;
   createdAt: string;
   updatedAt: string;
   createdBy?: IssueUser;
