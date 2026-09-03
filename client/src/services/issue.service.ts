@@ -103,3 +103,21 @@ export const assignIssue = async (
 
   return response.data.data;
 };
+
+export interface AssignableUser {
+  id: string;
+  name: string;
+  email: string;
+  role: "VOLUNTEER" | "AUTHORITY";
+}
+
+interface AssignableUsersResponse {
+  success: boolean;
+  data: AssignableUser[];
+}
+
+export const getAssignableUsers = async (): Promise<AssignableUser[]> => {
+  const response = await api.get<AssignableUsersResponse>("/users/assignable");
+
+  return response.data.data;
+};
