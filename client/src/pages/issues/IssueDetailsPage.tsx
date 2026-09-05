@@ -3,6 +3,7 @@ import { Link, useParams } from "react-router-dom";
 
 import {
   deleteIssue,
+  getAssignableUsers,
   getIssueById,
   updateIssueStatus,
 } from "../../services/issue.service";
@@ -36,6 +37,10 @@ function IssueDetailsPage() {
 
   const [updatingStatus, setUpdatingStatus] = useState(false);
   const [statusUpdateError, setStatusUpdateError] = useState("");
+
+  const [assignableUsers, setAssignableUsers] = useState<
+    Awaited<ReturnType<typeof getAssignableUsers>>
+  >([]);
 
   const [deleting, setDeleting] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
@@ -79,6 +84,22 @@ function IssueDetailsPage() {
 
     loadIssue();
   }, [id]);
+
+  // load assignable users
+  useEffect(() => {
+    if (user?.role !== "ADMIN") return;
+
+    const loadAssignableUsers = async () => {
+      try {
+        const users = await getAssignableUsers();
+        setAssignableUsers(users);
+      } catch {
+        setAssignableUsers([]);
+      }
+    };
+
+    loadAssignableUsers();
+  }, [user?.role]);
 
   // Load comments
   useEffect(() => {
@@ -342,6 +363,11 @@ function IssueDetailsPage() {
         updatingStatus={updatingStatus}
         statusUpdateError={statusUpdateError}
         onStatusChange={handleStatusChange}
+        canAssignIssue={user?.role === "ADMIN"}
+        assignableUsers={assignableUsers}
+        assigningIssue={false}
+        assignmentError=""
+        onAssignIssue={() => {}}
       />
 
       {/* Comments */}

@@ -1,11 +1,23 @@
 import type { Issue, IssueStatus } from "../../../types/issue";
 
+interface AssignableUser {
+  id: string;
+  name: string;
+  email: string;
+  role: "VOLUNTEER" | "AUTHORITY";
+}
+
 interface IssueInfoProps {
   issue: Issue;
   canUpdateStatus: boolean;
   updatingStatus: boolean;
   statusUpdateError: string;
   onStatusChange: (status: IssueStatus) => void;
+  canAssignIssue: boolean;
+  assignableUsers: AssignableUser[];
+  assigningIssue: boolean;
+  assignmentError: string;
+  onAssignIssue: (userId: string) => void;
 }
 
 function IssueInfo({
@@ -14,6 +26,11 @@ function IssueInfo({
   updatingStatus,
   statusUpdateError,
   onStatusChange,
+  canAssignIssue,
+  assignableUsers,
+  assigningIssue,
+  assignmentError,
+  onAssignIssue,
 }: IssueInfoProps) {
   return (
     <div className="overflow-hidden rounded-xl border border-slate-200 bg-white">
@@ -69,6 +86,43 @@ function IssueInfo({
           <p className="mt-3 text-sm font-medium text-red-600">
             {statusUpdateError}
           </p>
+        )}
+
+        {canAssignIssue && (
+          <div className="mt-6 border-t border-slate-100 pt-6">
+            <label
+              htmlFor="issue-assignee"
+              className="text-sm font-semibold uppercase tracking-wide text-slate-500"
+            >
+              Assign issue
+            </label>
+
+            <select
+              id="issue-assignee"
+              value={issue.assignedTo?.id ?? ""}
+              onChange={(event) => onAssignIssue(event.target.value)}
+              disabled={assigningIssue}
+              className="mt-2 w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-700 outline-none transition focus:border-teal-500 focus:ring-2 focus:ring-teal-100 disabled:cursor-not-allowed disabled:opacity-60"
+            >
+              <option value="">Select a volunteer or authority</option>
+
+              {assignableUsers.map((assignableUser) => (
+                <option key={assignableUser.id} value={assignableUser.id}>
+                  {assignableUser.name} ({assignableUser.role})
+                </option>
+              ))}
+            </select>
+
+            {assignmentError && (
+              <p className="mt-2 text-sm font-medium text-red-600">
+                {assignmentError}
+              </p>
+            )}
+
+            {assigningIssue && (
+              <p className="mt-2 text-xs text-slate-500">Assigning issue...</p>
+            )}
+          </div>
         )}
 
         <div className="mt-6">
