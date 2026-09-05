@@ -2,6 +2,7 @@ import { useContext, useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 
 import {
+  assignIssue,
   deleteIssue,
   getAssignableUsers,
   getIssueById,
@@ -41,6 +42,9 @@ function IssueDetailsPage() {
   const [assignableUsers, setAssignableUsers] = useState<
     Awaited<ReturnType<typeof getAssignableUsers>>
   >([]);
+
+  const [assigningIssue, setAssigningIssue] = useState(false);
+  const [assignmentError, setAssignmentError] = useState("");
 
   const [deleting, setDeleting] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
@@ -319,6 +323,36 @@ function IssueDetailsPage() {
     }
   };
 
+  const handleAssignIssue = async (userId: string) => {
+    if (!issue || !userId) return;
+
+    try {
+      setAssigningIssue(true);
+      setAssignmentError("");
+
+      const updatedIssue = await assignIssue(issue.id, userId);
+
+      setIssue(updatedIssue);
+    } catch (error: unknown) {
+      const response =
+        typeof error === "object" && error !== null && "response" in error
+          ? (
+              error as {
+                response?: {
+                  data?: {
+                    message?: string;
+                  };
+                };
+              }
+            ).response
+          : undefined;
+
+      setAssignmentError(response?.data?.message || "Unable to assign issue.");
+    } finally {
+      setAssigningIssue(false);
+    }
+  };
+
   // Loading state
   if (loading) {
     return (
@@ -365,9 +399,9 @@ function IssueDetailsPage() {
         onStatusChange={handleStatusChange}
         canAssignIssue={user?.role === "ADMIN"}
         assignableUsers={assignableUsers}
-        assigningIssue={false}
-        assignmentError=""
-        onAssignIssue={() => {}}
+        assigningIssue={assigningIssue}
+        assignmentError={assignmentError}
+        onAssignIssue={handleAssignIssue}
       />
 
       {/* Comments */}
