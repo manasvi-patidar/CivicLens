@@ -8,6 +8,7 @@ import {
   getIssueById,
   updateIssueStatus,
 } from "../../services/issue.service";
+import { getIssueActivities } from "../../services/activity.service";
 import {
   createComment,
   deleteComment,
@@ -25,6 +26,7 @@ import IssueInfo from "./components/IssueInfo";
 import IssueComments from "./components/IssueComments";
 import ConfirmationModal from "./components/ConfirmationModal";
 import { canDeleteIssue, canEditIssue } from "./utils/issue-permissions";
+import IssueActivityTimeline from "./components/IssueActivityTimeline";
 
 function IssueDetailsPage() {
   const { id } = useParams<{ id: string }>();
@@ -50,6 +52,10 @@ function IssueDetailsPage() {
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
   const [comments, setComments] = useState<Comment[]>([]);
+
+  const [activities, setActivities] = useState<
+    Awaited<ReturnType<typeof getIssueActivities>>
+  >([]);
 
   const [commentsLoading, setCommentsLoading] = useState(true);
   const [commentsError, setCommentsError] = useState("");
@@ -124,6 +130,22 @@ function IssueDetailsPage() {
     };
 
     loadComments();
+  }, [id]);
+
+  // Load activities
+  useEffect(() => {
+    const loadActivities = async () => {
+      if (!id) return;
+
+      try {
+        const data = await getIssueActivities(id);
+        setActivities(data);
+      } catch {
+        setActivities([]);
+      }
+    };
+
+    loadActivities();
   }, [id]);
 
   // Delete issue
@@ -403,6 +425,9 @@ function IssueDetailsPage() {
         assignmentError={assignmentError}
         onAssignIssue={handleAssignIssue}
       />
+
+      {/* Activity */}
+      <IssueActivityTimeline activities={activities} />
 
       {/* Comments */}
       <IssueComments
