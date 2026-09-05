@@ -125,6 +125,32 @@ function IssueInfo({
           </div>
         )}
 
+        {issue.assignedTo && (
+          <div className="mt-6 border-t border-slate-100 pt-6">
+            <h2 className="text-sm font-semibold uppercase tracking-wide text-slate-500">
+              Assigned to
+            </h2>
+
+            <div className="mt-3">
+              <p className="text-sm font-semibold text-slate-700">
+                {issue.assignedTo.name}
+              </p>
+
+              {issue.assignedTo.email && (
+                <p className="mt-1 text-sm text-slate-500">
+                  {issue.assignedTo.email}
+                </p>
+              )}
+
+              {issue.assignedTo.role && (
+                <span className="mt-2 inline-block rounded-full bg-teal-50 px-3 py-1 text-xs font-semibold text-teal-700">
+                  {issue.assignedTo.role}
+                </span>
+              )}
+            </div>
+          </div>
+        )}
+
         <div className="mt-6">
           <h2 className="text-sm font-semibold uppercase tracking-wide text-slate-500">
             Description
