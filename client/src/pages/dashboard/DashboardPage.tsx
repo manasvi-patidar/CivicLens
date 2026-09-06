@@ -11,12 +11,23 @@ function DashboardPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
+  const [statusFilter, setStatusFilter] = useState("");
+  const [priorityFilter, setPriorityFilter] = useState("");
+  const [categoryFilter, setCategoryFilter] = useState("");
+  const [assignmentFilter, setAssignmentFilter] = useState("");
+  const [sortOrder, setSortOrder] = useState<"newest" | "oldest">("newest");
+
+  const isManagementUser = user?.role === "ADMIN" || user?.role === "AUTHORITY";
+
   useEffect(() => {
     const loadIssues = async () => {
       try {
         setError("");
 
-        const response = await getIssues();
+        const response = isManagementUser
+          ? await getIssues({ page: 1, limit: 1000 })
+          : await getIssues();
+
         setIssues(response.data);
       } catch {
         setError("Unable to load civic issues right now.");
@@ -26,13 +37,35 @@ function DashboardPage() {
     };
 
     loadIssues();
-  }, []);
+  }, [isManagementUser]);
 
   const myReports = issues.filter(
     (issue) => issue.createdById === user?.id,
   ).length;
 
+  const totalIssues = issues.length;
+
   const openIssues = issues.filter((issue) => issue.status === "OPEN").length;
+
+  const inProgressIssues = issues.filter(
+    (issue) => issue.status === "IN_PROGRESS",
+  ).length;
+
+  const resolvedIssues = issues.filter(
+    (issue) => issue.status === "RESOLVED",
+  ).length;
+
+  const highPriorityIssues = issues.filter(
+    (issue) => issue.priority === "HIGH",
+  ).length;
+
+  const assignedIssues = issues.filter(
+    (issue) => issue.assignedToId !== null,
+  ).length;
+
+  const unassignedIssues = issues.filter(
+    (issue) => issue.assignedToId === null,
+  ).length;
 
   const recentIssues = [...issues]
     .sort(
@@ -40,6 +73,344 @@ function DashboardPage() {
         new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
     )
     .slice(0, 3);
+
+  const filteredIssues = [...issues]
+    .filter((issue) => {
+      if (statusFilter && issue.status !== statusFilter) {
+        return false;
+      }
+
+      if (priorityFilter && issue.priority !== priorityFilter) {
+        return false;
+      }
+
+      if (categoryFilter && issue.category !== categoryFilter) {
+        return false;
+      }
+
+      if (assignmentFilter === "ASSIGNED" && issue.assignedToId === null) {
+        return false;
+      }
+
+      if (assignmentFilter === "UNASSIGNED" && issue.assignedToId !== null) {
+        return false;
+      }
+
+      return true;
+    })
+    .sort((a, b) => {
+      const firstDate = new Date(a.createdAt).getTime();
+      const secondDate = new Date(b.createdAt).getTime();
+
+      return sortOrder === "newest"
+        ? secondDate - firstDate
+        : firstDate - secondDate;
+    })
+    .slice(0, 10);
+
+  if (isManagementUser) {
+    return (
+      <div className="space-y-8">
+        <div>
+          <p className="text-sm font-medium text-teal-700">
+            Civic Management Dashboard
+          </p>
+
+          <h1 className="mt-1 text-3xl font-bold tracking-tight text-slate-900">
+            Welcome back, {user?.name} 👋
+          </h1>
+
+          <p className="text-muted mt-2">
+            Monitor civic issues, track progress, and manage community reports
+            from one place.
+          </p>
+        </div>
+
+        {error && (
+          <div className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-600">
+            {error}
+          </div>
+        )}
+
+        <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
+          <div className="card p-6">
+            <p className="text-muted text-sm">Total Issues</p>
+
+            <p className="mt-2 text-3xl font-bold text-slate-900">
+              {loading ? "—" : totalIssues}
+            </p>
+
+            <p className="mt-1 text-sm text-slate-500">
+              All reported civic issues
+            </p>
+          </div>
+
+          <div className="card p-6">
+            <p className="text-muted text-sm">Open Issues</p>
+
+            <p className="mt-2 text-3xl font-bold text-slate-900">
+              {loading ? "—" : openIssues}
+            </p>
+
+            <p className="mt-1 text-sm text-slate-500">
+              Issues awaiting action
+            </p>
+          </div>
+
+          <div className="card p-6">
+            <p className="text-muted text-sm">In Progress</p>
+
+            <p className="mt-2 text-3xl font-bold text-slate-900">
+              {loading ? "—" : inProgressIssues}
+            </p>
+
+            <p className="mt-1 text-sm text-slate-500">
+              Issues currently being handled
+            </p>
+          </div>
+
+          <div className="card p-6">
+            <p className="text-muted text-sm">Resolved</p>
+
+            <p className="mt-2 text-3xl font-bold text-slate-900">
+              {loading ? "—" : resolvedIssues}
+            </p>
+
+            <p className="mt-1 text-sm text-slate-500">
+              Successfully resolved issues
+            </p>
+          </div>
+        </div>
+
+        <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
+          <div className="card p-6">
+            <p className="text-muted text-sm">High Priority</p>
+
+            <p className="mt-2 text-3xl font-bold text-slate-900">
+              {loading ? "—" : highPriorityIssues}
+            </p>
+
+            <p className="mt-1 text-sm text-slate-500">
+              Issues requiring attention
+            </p>
+          </div>
+
+          <div className="card p-6">
+            <p className="text-muted text-sm">Assigned</p>
+
+            <p className="mt-2 text-3xl font-bold text-slate-900">
+              {loading ? "—" : assignedIssues}
+            </p>
+
+            <p className="mt-1 text-sm text-slate-500">
+              Issues assigned to staff
+            </p>
+          </div>
+
+          <div className="card p-6">
+            <p className="text-muted text-sm">Unassigned</p>
+
+            <p className="mt-2 text-3xl font-bold text-slate-900">
+              {loading ? "—" : unassignedIssues}
+            </p>
+
+            <p className="mt-1 text-sm text-slate-500">
+              Issues awaiting assignment
+            </p>
+          </div>
+
+          <div className="card p-6">
+            <p className="text-muted text-sm">Resolution Rate</p>
+
+            <p className="mt-2 text-3xl font-bold text-slate-900">
+              {loading || totalIssues === 0
+                ? "—"
+                : `${Math.round((resolvedIssues / totalIssues) * 100)}%`}
+            </p>
+
+            <p className="mt-1 text-sm text-slate-500">
+              Resolved vs total issues
+            </p>
+          </div>
+        </div>
+
+        <div className="card overflow-hidden">
+          <div className="border-b border-slate-100 px-6 py-5">
+            <div>
+              <h2 className="text-xl font-semibold text-slate-900">
+                Issue Management
+              </h2>
+
+              <p className="text-muted mt-1 text-sm">
+                Filter and sort civic issues to quickly find the reports that
+                need attention.
+              </p>
+            </div>
+          </div>
+
+          <div className="grid gap-4 border-b border-slate-100 bg-slate-50 p-6 sm:grid-cols-2 lg:grid-cols-5">
+            <div>
+              <label className="mb-2 block text-sm font-medium text-slate-700">
+                Status
+              </label>
+
+              <select
+                value={statusFilter}
+                onChange={(event) => setStatusFilter(event.target.value)}
+                className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-700 outline-none focus:border-teal-500"
+              >
+                <option value="">All Statuses</option>
+                <option value="OPEN">Open</option>
+                <option value="IN_PROGRESS">In Progress</option>
+                <option value="RESOLVED">Resolved</option>
+                <option value="REJECTED">Rejected</option>
+              </select>
+            </div>
+
+            <div>
+              <label className="mb-2 block text-sm font-medium text-slate-700">
+                Priority
+              </label>
+
+              <select
+                value={priorityFilter}
+                onChange={(event) => setPriorityFilter(event.target.value)}
+                className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-700 outline-none focus:border-teal-500"
+              >
+                <option value="">All Priorities</option>
+                <option value="LOW">Low</option>
+                <option value="MEDIUM">Medium</option>
+                <option value="HIGH">High</option>
+              </select>
+            </div>
+
+            <div>
+              <label className="mb-2 block text-sm font-medium text-slate-700">
+                Category
+              </label>
+
+              <select
+                value={categoryFilter}
+                onChange={(event) => setCategoryFilter(event.target.value)}
+                className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-700 outline-none focus:border-teal-500"
+              >
+                <option value="">All Categories</option>
+                <option value="ROAD">Road</option>
+                <option value="WATER">Water</option>
+                <option value="ELECTRICITY">Electricity</option>
+                <option value="GARBAGE">Garbage</option>
+                <option value="STREETLIGHT">Streetlight</option>
+                <option value="DRAINAGE">Drainage</option>
+                <option value="PUBLIC_PROPERTY">Public Property</option>
+                <option value="OTHER">Other</option>
+              </select>
+            </div>
+
+            <div>
+              <label className="mb-2 block text-sm font-medium text-slate-700">
+                Assignment
+              </label>
+
+              <select
+                value={assignmentFilter}
+                onChange={(event) => setAssignmentFilter(event.target.value)}
+                className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-700 outline-none focus:border-teal-500"
+              >
+                <option value="">All Issues</option>
+                <option value="ASSIGNED">Assigned</option>
+                <option value="UNASSIGNED">Unassigned</option>
+              </select>
+            </div>
+
+            <div>
+              <label className="mb-2 block text-sm font-medium text-slate-700">
+                Sort
+              </label>
+
+              <select
+                value={sortOrder}
+                onChange={(event) =>
+                  setSortOrder(event.target.value as "newest" | "oldest")
+                }
+                className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-700 outline-none focus:border-teal-500"
+              >
+                <option value="newest">Newest First</option>
+                <option value="oldest">Oldest First</option>
+              </select>
+            </div>
+          </div>
+
+          <div className="divide-y divide-slate-100">
+            {loading ? (
+              <div className="px-6 py-8 text-sm text-slate-500">
+                Loading civic issues...
+              </div>
+            ) : filteredIssues.length === 0 ? (
+              <div className="px-6 py-8">
+                <p className="font-medium text-slate-900">
+                  No issues match the selected filters.
+                </p>
+
+                <p className="text-muted mt-1 text-sm">
+                  Try changing the filters to see more civic issues.
+                </p>
+              </div>
+            ) : (
+              filteredIssues.map((issue) => (
+                <Link
+                  key={issue.id}
+                  to={`/issues/${issue.id}`}
+                  className="block px-6 py-5 transition hover:bg-slate-50"
+                >
+                  <div className="flex items-start justify-between gap-4">
+                    <div className="min-w-0">
+                      <h3 className="truncate font-medium text-slate-900">
+                        {issue.title}
+                      </h3>
+
+                      <p className="text-muted mt-1 text-sm">
+                        {issue.category.replace("_", " ")}
+                        {issue.address ? ` · ${issue.address}` : ""}
+                      </p>
+
+                      <div className="mt-2 flex flex-wrap gap-2">
+                        <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-medium text-slate-600">
+                          {issue.status.replace("_", " ")}
+                        </span>
+
+                        <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-medium text-slate-600">
+                          {issue.priority} priority
+                        </span>
+
+                        <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-medium text-slate-600">
+                          {issue.assignedToId ? "Assigned" : "Unassigned"}
+                        </span>
+                      </div>
+                    </div>
+
+                    <span className="shrink-0 text-xs text-slate-400">
+                      {new Date(issue.createdAt).toLocaleDateString()}
+                    </span>
+                  </div>
+                </Link>
+              ))
+            )}
+          </div>
+
+          {!loading && filteredIssues.length > 0 && (
+            <div className="border-t border-slate-100 px-6 py-4">
+              <Link
+                to="/issues"
+                className="text-sm font-medium text-teal-700 hover:text-teal-800"
+              >
+                View all issues →
+              </Link>
+            </div>
+          )}
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-8">
