@@ -7,6 +7,7 @@ import type { Issue } from "../../types/issue";
 import AssignedIssueList from "./components/AssignedIssueList";
 import { getDashboardStats } from "./utils/dashboard-stats";
 import { getAssignedIssues } from "./utils/dashboard-filters";
+import { getFilteredDashboardIssues } from "./utils/dashboard-issue-filters";
 
 function DashboardPage() {
   const { user } = useAuth();
@@ -69,39 +70,14 @@ function DashboardPage() {
     )
     .slice(0, 3);
 
-  const filteredIssues = [...issues]
-    .filter((issue) => {
-      if (statusFilter && issue.status !== statusFilter) {
-        return false;
-      }
-
-      if (priorityFilter && issue.priority !== priorityFilter) {
-        return false;
-      }
-
-      if (categoryFilter && issue.category !== categoryFilter) {
-        return false;
-      }
-
-      if (assignmentFilter === "ASSIGNED" && issue.assignedToId === null) {
-        return false;
-      }
-
-      if (assignmentFilter === "UNASSIGNED" && issue.assignedToId !== null) {
-        return false;
-      }
-
-      return true;
-    })
-    .sort((a, b) => {
-      const firstDate = new Date(a.createdAt).getTime();
-      const secondDate = new Date(b.createdAt).getTime();
-
-      return sortOrder === "newest"
-        ? secondDate - firstDate
-        : firstDate - secondDate;
-    })
-    .slice(0, 10);
+  const filteredIssues = getFilteredDashboardIssues({
+    issues,
+    statusFilter,
+    priorityFilter,
+    categoryFilter,
+    assignmentFilter,
+    sortOrder,
+  });
 
   if (isVolunteer) {
     return (
