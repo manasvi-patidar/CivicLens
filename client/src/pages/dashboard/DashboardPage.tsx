@@ -6,6 +6,7 @@ import type { Issue } from "../../types/issue";
 
 import AssignedIssueList from "./components/AssignedIssueList";
 import { getDashboardStats } from "./utils/dashboard-stats";
+import { getAssignedIssues } from "./utils/dashboard-filters";
 
 function DashboardPage() {
   const { user } = useAuth();
@@ -49,10 +50,7 @@ function DashboardPage() {
     (issue) => issue.createdById === user?.id,
   ).length;
 
-  const assignedToMe = issues.filter(
-    (issue) =>
-      issue.assignedToId === user?.id || issue.assignedTo?.id === user?.id,
-  );
+  const assignedToMe = getAssignedIssues(issues, user?.id);
 
   const {
     totalIssues,
