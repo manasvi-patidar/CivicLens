@@ -46,6 +46,15 @@ export const getAllIssues = async (
           role: true,
         },
       },
+
+      assignedTo: {
+        select: {
+          id: true,
+          name: true,
+          email: true,
+          role: true,
+        },
+      },
     },
 
     orderBy: {

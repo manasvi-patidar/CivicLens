@@ -19,14 +19,17 @@ function DashboardPage() {
 
   const isManagementUser = user?.role === "ADMIN" || user?.role === "AUTHORITY";
 
+  const isVolunteer = user?.role === "VOLUNTEER";
+
   useEffect(() => {
     const loadIssues = async () => {
       try {
         setError("");
 
-        const response = isManagementUser
-          ? await getIssues({ page: 1, limit: 1000 })
-          : await getIssues();
+        const response =
+          isManagementUser || isVolunteer
+            ? await getIssues({ page: 1, limit: 1000 })
+            : await getIssues();
 
         setIssues(response.data);
       } catch {
@@ -37,11 +40,16 @@ function DashboardPage() {
     };
 
     loadIssues();
-  }, [isManagementUser]);
+  }, [isManagementUser, isVolunteer]);
 
   const myReports = issues.filter(
     (issue) => issue.createdById === user?.id,
   ).length;
+
+  const assignedToMe = issues.filter(
+    (issue) =>
+      issue.assignedToId === user?.id || issue.assignedTo?.id === user?.id,
+  );
 
   const totalIssues = issues.length;
 
@@ -107,6 +115,191 @@ function DashboardPage() {
         : firstDate - secondDate;
     })
     .slice(0, 10);
+
+  if (isVolunteer) {
+    return (
+      <div className="space-y-8">
+        <div>
+          <p className="text-sm font-medium text-teal-700">
+            Volunteer Workspace
+          </p>
+
+          <h1 className="mt-1 text-3xl font-bold tracking-tight text-slate-900">
+            Welcome back, {user?.name} 👋
+          </h1>
+
+          <p className="text-muted mt-2">
+            Review the civic issues assigned to you and help move them toward
+            resolution.
+          </p>
+        </div>
+
+        {error && (
+          <div className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-600">
+            {error}
+          </div>
+        )}
+
+        <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+          <div className="card p-6">
+            <p className="text-muted text-sm">Assigned to Me</p>
+
+            <p className="mt-2 text-3xl font-bold text-slate-900">
+              {loading ? "—" : assignedToMe.length}
+            </p>
+
+            <p className="mt-1 text-sm text-slate-500">
+              Issues currently assigned to you
+            </p>
+          </div>
+
+          <div className="card p-6">
+            <p className="text-muted text-sm">Open</p>
+
+            <p className="mt-2 text-3xl font-bold text-slate-900">
+              {loading
+                ? "—"
+                : assignedToMe.filter((issue) => issue.status === "OPEN")
+                    .length}
+            </p>
+
+            <p className="mt-1 text-sm text-slate-500">
+              Assigned issues waiting to be worked on
+            </p>
+          </div>
+
+          <div className="card p-6">
+            <p className="text-muted text-sm">In Progress</p>
+
+            <p className="mt-2 text-3xl font-bold text-slate-900">
+              {loading
+                ? "—"
+                : assignedToMe.filter((issue) => issue.status === "IN_PROGRESS")
+                    .length}
+            </p>
+
+            <p className="mt-1 text-sm text-slate-500">
+              Assigned issues currently being handled
+            </p>
+          </div>
+        </div>
+
+        <div className="card overflow-hidden">
+          <div className="flex items-center justify-between border-b border-slate-100 px-6 py-5">
+            <div>
+              <h2 className="text-xl font-semibold text-slate-900">
+                My Assigned Issues
+              </h2>
+
+              <p className="text-muted mt-1 text-sm">
+                Issues that have been assigned to you for review or field work.
+              </p>
+            </div>
+
+            <Link
+              to="/issues"
+              className="text-sm font-medium text-teal-700 hover:text-teal-800"
+            >
+              All issues
+            </Link>
+          </div>
+
+          <div className="divide-y divide-slate-100">
+            {loading ? (
+              <div className="px-6 py-8 text-sm text-slate-500">
+                Loading assigned issues...
+              </div>
+            ) : assignedToMe.length === 0 ? (
+              <div className="px-6 py-8">
+                <p className="font-medium text-slate-900">
+                  No issues are assigned to you yet.
+                </p>
+
+                <p className="text-muted mt-1 text-sm">
+                  Assigned civic issues will appear here when they are given to
+                  you.
+                </p>
+              </div>
+            ) : (
+              assignedToMe
+                .slice()
+                .sort(
+                  (a, b) =>
+                    new Date(b.createdAt).getTime() -
+                    new Date(a.createdAt).getTime(),
+                )
+                .map((issue) => (
+                  <Link
+                    key={issue.id}
+                    to={`/issues/${issue.id}`}
+                    className="block px-6 py-5 transition hover:bg-slate-50"
+                  >
+                    <div className="flex items-start justify-between gap-4">
+                      <div className="min-w-0">
+                        <h3 className="truncate font-medium text-slate-900">
+                          {issue.title}
+                        </h3>
+
+                        <p className="text-muted mt-1 text-sm">
+                          {issue.category.replace("_", " ")}
+                          {issue.address ? ` · ${issue.address}` : ""}
+                        </p>
+
+                        <div className="mt-2 flex flex-wrap gap-2">
+                          <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-medium text-slate-600">
+                            {issue.status.replace("_", " ")}
+                          </span>
+
+                          <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-medium text-slate-600">
+                            {issue.priority} priority
+                          </span>
+
+                          {issue.imageUrl && (
+                            <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-medium text-slate-600">
+                              Evidence attached
+                            </span>
+                          )}
+                        </div>
+                      </div>
+
+                      <span className="shrink-0 text-sm font-medium text-teal-700">
+                        Open →
+                      </span>
+                    </div>
+                  </Link>
+                ))
+            )}
+          </div>
+        </div>
+
+        <div className="card overflow-hidden">
+          <div className="p-7">
+            <div className="max-w-2xl">
+              <p className="text-sm font-semibold uppercase tracking-wide text-teal-700">
+                Volunteer workflow
+              </p>
+
+              <h2 className="mt-2 text-2xl font-semibold text-slate-900">
+                Work on assigned civic issues
+              </h2>
+
+              <p className="text-muted mt-2 leading-7">
+                Open an assigned issue to review its description, location,
+                evidence, comments, and activity history. Use the available
+                actions for your role to contribute useful information.
+              </p>
+
+              <div className="mt-6">
+                <Link to="/issues" className="btn btn-primary">
+                  Browse Issues
+                </Link>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   if (isManagementUser) {
     return (
@@ -231,6 +424,75 @@ function DashboardPage() {
             <p className="mt-1 text-sm text-slate-500">
               Resolved vs total issues
             </p>
+          </div>
+        </div>
+
+        <div className="card overflow-hidden">
+          <div className="border-b border-slate-100 px-6 py-5">
+            <div>
+              <h2 className="text-xl font-semibold text-slate-900">
+                My Assigned Issues
+              </h2>
+
+              <p className="text-muted mt-1 text-sm">
+                Issues specifically assigned to you.
+              </p>
+            </div>
+          </div>
+
+          <div className="divide-y divide-slate-100">
+            {loading ? (
+              <div className="px-6 py-8 text-sm text-slate-500">
+                Loading assigned issues...
+              </div>
+            ) : assignedToMe.length === 0 ? (
+              <div className="px-6 py-8 text-sm text-slate-500">
+                No issues are currently assigned to you.
+              </div>
+            ) : (
+              assignedToMe
+                .slice()
+                .sort(
+                  (a, b) =>
+                    new Date(b.createdAt).getTime() -
+                    new Date(a.createdAt).getTime(),
+                )
+                .slice(0, 5)
+                .map((issue) => (
+                  <Link
+                    key={issue.id}
+                    to={`/issues/${issue.id}`}
+                    className="block px-6 py-5 transition hover:bg-slate-50"
+                  >
+                    <div className="flex items-start justify-between gap-4">
+                      <div className="min-w-0">
+                        <h3 className="truncate font-medium text-slate-900">
+                          {issue.title}
+                        </h3>
+
+                        <p className="text-muted mt-1 text-sm">
+                          {issue.category.replace("_", " ")}
+                          {issue.address ? ` · ${issue.address}` : ""}
+                        </p>
+
+                        <div className="mt-2 flex flex-wrap gap-2">
+                          <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-medium text-slate-600">
+                            {issue.status.replace("_", " ")}
+                          </span>
+
+                          <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-medium text-slate-600">
+                            {issue.priority} priority
+                          </span>
+                        </div>
+                      </div>
+
+                      <span className="shrink-0 text-sm font-medium text-teal-700">
+                        Open →
+                      </span>
+                    </div>
+                  </Link>
+                ))
+            )}
           </div>
         </div>
 
