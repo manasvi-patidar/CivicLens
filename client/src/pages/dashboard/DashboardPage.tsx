@@ -5,6 +5,7 @@ import { getIssues } from "../../services/issue.service";
 import type { Issue } from "../../types/issue";
 
 import AssignedIssueList from "./components/AssignedIssueList";
+import { getDashboardStats } from "./utils/dashboard-stats";
 
 function DashboardPage() {
   const { user } = useAuth();
@@ -53,29 +54,15 @@ function DashboardPage() {
       issue.assignedToId === user?.id || issue.assignedTo?.id === user?.id,
   );
 
-  const totalIssues = issues.length;
-
-  const openIssues = issues.filter((issue) => issue.status === "OPEN").length;
-
-  const inProgressIssues = issues.filter(
-    (issue) => issue.status === "IN_PROGRESS",
-  ).length;
-
-  const resolvedIssues = issues.filter(
-    (issue) => issue.status === "RESOLVED",
-  ).length;
-
-  const highPriorityIssues = issues.filter(
-    (issue) => issue.priority === "HIGH",
-  ).length;
-
-  const assignedIssues = issues.filter(
-    (issue) => issue.assignedToId !== null,
-  ).length;
-
-  const unassignedIssues = issues.filter(
-    (issue) => issue.assignedToId === null,
-  ).length;
+  const {
+    totalIssues,
+    openIssues,
+    inProgressIssues,
+    resolvedIssues,
+    highPriorityIssues,
+    assignedIssues,
+    unassignedIssues,
+  } = getDashboardStats(issues);
 
   const recentIssues = [...issues]
     .sort(
