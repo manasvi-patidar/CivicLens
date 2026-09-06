@@ -8,6 +8,7 @@ import AssignedIssueList from "./components/AssignedIssueList";
 import { getDashboardStats } from "./utils/dashboard-stats";
 import { getAssignedIssues } from "./utils/dashboard-filters";
 import { getFilteredDashboardIssues } from "./utils/dashboard-issue-filters";
+import { isManagementUser, isVolunteerUser } from "./utils/dashboard-roles";
 
 function DashboardPage() {
   const { user } = useAuth();
@@ -22,9 +23,8 @@ function DashboardPage() {
   const [assignmentFilter, setAssignmentFilter] = useState("");
   const [sortOrder, setSortOrder] = useState<"newest" | "oldest">("newest");
 
-  const isManagementUser = user?.role === "ADMIN" || user?.role === "AUTHORITY";
-
-  const isVolunteer = user?.role === "VOLUNTEER";
+  const managementUser = isManagementUser(user);
+  const volunteerUser = isVolunteerUser(user);
 
   useEffect(() => {
     const loadIssues = async () => {
@@ -32,7 +32,7 @@ function DashboardPage() {
         setError("");
 
         const response =
-          isManagementUser || isVolunteer
+          managementUser || volunteerUser
             ? await getIssues({ page: 1, limit: 1000 })
             : await getIssues();
 
@@ -45,7 +45,7 @@ function DashboardPage() {
     };
 
     loadIssues();
-  }, [isManagementUser, isVolunteer]);
+  }, [managementUser, volunteerUser]);
 
   const myReports = issues.filter(
     (issue) => issue.createdById === user?.id,
@@ -79,7 +79,7 @@ function DashboardPage() {
     sortOrder,
   });
 
-  if (isVolunteer) {
+  if (volunteerUser) {
     return (
       <div className="space-y-8">
         <div>
@@ -205,7 +205,7 @@ function DashboardPage() {
     );
   }
 
-  if (isManagementUser) {
+  if (managementUser) {
     return (
       <div className="space-y-8">
         <div>
