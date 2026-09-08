@@ -1,51 +1,30 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Link } from "react-router-dom";
 import { useAuth } from "../../hooks/useAuth";
-import { getIssues } from "../../services/issue.service";
-import type { Issue } from "../../types/issue";
 
 import AssignedIssueList from "./components/AssignedIssueList";
 import { getDashboardStats } from "./utils/dashboard-stats";
 import { getAssignedIssues } from "./utils/dashboard-filters";
 import { getFilteredDashboardIssues } from "./utils/dashboard-issue-filters";
 import { isManagementUser, isVolunteerUser } from "./utils/dashboard-roles";
+import { useDashboardIssues } from "./hooks/useDashboardIssues";
 
 function DashboardPage() {
   const { user } = useAuth();
 
-  const [issues, setIssues] = useState<Issue[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
+  const managementUser = isManagementUser(user);
+  const volunteerUser = isVolunteerUser(user);
+
+  const { issues, loading, error } = useDashboardIssues({
+    isManagementUser: managementUser,
+    isVolunteer: volunteerUser,
+  });
 
   const [statusFilter, setStatusFilter] = useState("");
   const [priorityFilter, setPriorityFilter] = useState("");
   const [categoryFilter, setCategoryFilter] = useState("");
   const [assignmentFilter, setAssignmentFilter] = useState("");
   const [sortOrder, setSortOrder] = useState<"newest" | "oldest">("newest");
-
-  const managementUser = isManagementUser(user);
-  const volunteerUser = isVolunteerUser(user);
-
-  useEffect(() => {
-    const loadIssues = async () => {
-      try {
-        setError("");
-
-        const response =
-          managementUser || volunteerUser
-            ? await getIssues({ page: 1, limit: 1000 })
-            : await getIssues();
-
-        setIssues(response.data);
-      } catch {
-        setError("Unable to load civic issues right now.");
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    loadIssues();
-  }, [managementUser, volunteerUser]);
 
   const myReports = issues.filter(
     (issue) => issue.createdById === user?.id,
