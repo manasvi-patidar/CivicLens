@@ -15,6 +15,7 @@ import VolunteerWorkflow from "./components/VolunteerWorkflow";
 import VolunteerDashboardHeader from "./components/VolunteerDashboardHeader";
 import ManagementAssignedIssues from "./components/ManagementAssignedIssues";
 import IssueManagementHeader from "./components/IssueManagementHeader";
+import IssueManagementFilters from "./components/IssueManagementFilters";
 
 function DashboardPage() {
   const { user } = useAuth();
@@ -139,96 +140,19 @@ function DashboardPage() {
             <IssueManagementHeader />
           </div>
 
-          <div className="grid gap-4 border-b border-slate-100 bg-slate-50 p-6 sm:grid-cols-2 lg:grid-cols-5">
-            <div>
-              <label className="mb-2 block text-sm font-medium text-slate-700">
-                Status
-              </label>
-
-              <select
-                value={statusFilter}
-                onChange={(event) => setStatusFilter(event.target.value)}
-                className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-700 outline-none focus:border-teal-500"
-              >
-                <option value="">All Statuses</option>
-                <option value="OPEN">Open</option>
-                <option value="IN_PROGRESS">In Progress</option>
-                <option value="RESOLVED">Resolved</option>
-                <option value="REJECTED">Rejected</option>
-              </select>
-            </div>
-
-            <div>
-              <label className="mb-2 block text-sm font-medium text-slate-700">
-                Priority
-              </label>
-
-              <select
-                value={priorityFilter}
-                onChange={(event) => setPriorityFilter(event.target.value)}
-                className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-700 outline-none focus:border-teal-500"
-              >
-                <option value="">All Priorities</option>
-                <option value="LOW">Low</option>
-                <option value="MEDIUM">Medium</option>
-                <option value="HIGH">High</option>
-              </select>
-            </div>
-
-            <div>
-              <label className="mb-2 block text-sm font-medium text-slate-700">
-                Category
-              </label>
-
-              <select
-                value={categoryFilter}
-                onChange={(event) => setCategoryFilter(event.target.value)}
-                className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-700 outline-none focus:border-teal-500"
-              >
-                <option value="">All Categories</option>
-                <option value="ROAD">Road</option>
-                <option value="WATER">Water</option>
-                <option value="ELECTRICITY">Electricity</option>
-                <option value="GARBAGE">Garbage</option>
-                <option value="STREETLIGHT">Streetlight</option>
-                <option value="DRAINAGE">Drainage</option>
-                <option value="PUBLIC_PROPERTY">Public Property</option>
-                <option value="OTHER">Other</option>
-              </select>
-            </div>
-
-            <div>
-              <label className="mb-2 block text-sm font-medium text-slate-700">
-                Assignment
-              </label>
-
-              <select
-                value={assignmentFilter}
-                onChange={(event) => setAssignmentFilter(event.target.value)}
-                className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-700 outline-none focus:border-teal-500"
-              >
-                <option value="">All Issues</option>
-                <option value="ASSIGNED">Assigned</option>
-                <option value="UNASSIGNED">Unassigned</option>
-              </select>
-            </div>
-
-            <div>
-              <label className="mb-2 block text-sm font-medium text-slate-700">
-                Sort
-              </label>
-
-              <select
-                value={sortOrder}
-                onChange={(event) =>
-                  setSortOrder(event.target.value as "newest" | "oldest")
-                }
-                className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-700 outline-none focus:border-teal-500"
-              >
-                <option value="newest">Newest First</option>
-                <option value="oldest">Oldest First</option>
-              </select>
-            </div>
+          <div className="border-b border-slate-100 bg-slate-50 p-6">
+            <IssueManagementFilters
+              statusFilter={statusFilter}
+              priorityFilter={priorityFilter}
+              categoryFilter={categoryFilter}
+              assignmentFilter={assignmentFilter}
+              sortOrder={sortOrder}
+              onStatusChange={setStatusFilter}
+              onPriorityChange={setPriorityFilter}
+              onCategoryChange={setCategoryFilter}
+              onAssignmentChange={setAssignmentFilter}
+              onSortChange={setSortOrder}
+            />
           </div>
 
           <div className="divide-y divide-slate-100">
