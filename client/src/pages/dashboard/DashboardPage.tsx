@@ -14,6 +14,7 @@ import VolunteerDashboardStats from "./components/VolunteerDashboardStats";
 import VolunteerWorkflow from "./components/VolunteerWorkflow";
 import VolunteerDashboardHeader from "./components/VolunteerDashboardHeader";
 import ManagementAssignedIssues from "./components/ManagementAssignedIssues";
+import IssueManagementHeader from "./components/IssueManagementHeader";
 
 function DashboardPage() {
   const { user } = useAuth();
@@ -135,16 +136,7 @@ function DashboardPage() {
 
         <div className="card overflow-hidden">
           <div className="border-b border-slate-100 px-6 py-5">
-            <div>
-              <h2 className="text-xl font-semibold text-slate-900">
-                Issue Management
-              </h2>
-
-              <p className="text-muted mt-1 text-sm">
-                Filter and sort civic issues to quickly find the reports that
-                need attention.
-              </p>
-            </div>
+            <IssueManagementHeader />
           </div>
 
           <div className="grid gap-4 border-b border-slate-100 bg-slate-50 p-6 sm:grid-cols-2 lg:grid-cols-5">
