@@ -10,6 +10,7 @@ import { isManagementUser, isVolunteerUser } from "./utils/dashboard-roles";
 import { useDashboardIssues } from "./hooks/useDashboardIssues";
 import DashboardStats from "./components/DashboardStats";
 import ManagementDashboardHeader from "./components/ManagementDashboardHeader";
+import VolunteerDashboardStats from "./components/VolunteerDashboardStats";
 
 function DashboardPage() {
   const { user } = useAuth();
@@ -84,49 +85,17 @@ function DashboardPage() {
           </div>
         )}
 
-        <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-          <div className="card p-6">
-            <p className="text-muted text-sm">Assigned to Me</p>
-
-            <p className="mt-2 text-3xl font-bold text-slate-900">
-              {loading ? "—" : assignedToMe.length}
-            </p>
-
-            <p className="mt-1 text-sm text-slate-500">
-              Issues currently assigned to you
-            </p>
-          </div>
-
-          <div className="card p-6">
-            <p className="text-muted text-sm">Open</p>
-
-            <p className="mt-2 text-3xl font-bold text-slate-900">
-              {loading
-                ? "—"
-                : assignedToMe.filter((issue) => issue.status === "OPEN")
-                    .length}
-            </p>
-
-            <p className="mt-1 text-sm text-slate-500">
-              Assigned issues waiting to be worked on
-            </p>
-          </div>
-
-          <div className="card p-6">
-            <p className="text-muted text-sm">In Progress</p>
-
-            <p className="mt-2 text-3xl font-bold text-slate-900">
-              {loading
-                ? "—"
-                : assignedToMe.filter((issue) => issue.status === "IN_PROGRESS")
-                    .length}
-            </p>
-
-            <p className="mt-1 text-sm text-slate-500">
-              Assigned issues currently being handled
-            </p>
-          </div>
-        </div>
+        <VolunteerDashboardStats
+          loading={loading}
+          assignedCount={assignedToMe.length}
+          openCount={
+            assignedToMe.filter((issue) => issue.status === "OPEN").length
+          }
+          inProgressCount={
+            assignedToMe.filter((issue) => issue.status === "IN_PROGRESS")
+              .length
+          }
+        />
 
         <div className="card overflow-hidden">
           <div className="flex items-center justify-between border-b border-slate-100 px-6 py-5">
