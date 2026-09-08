@@ -9,6 +9,7 @@ import { getFilteredDashboardIssues } from "./utils/dashboard-issue-filters";
 import { isManagementUser, isVolunteerUser } from "./utils/dashboard-roles";
 import { useDashboardIssues } from "./hooks/useDashboardIssues";
 import DashboardStats from "./components/DashboardStats";
+import ManagementDashboardHeader from "./components/ManagementDashboardHeader";
 
 function DashboardPage() {
   const { user } = useAuth();
@@ -188,26 +189,7 @@ function DashboardPage() {
   if (managementUser) {
     return (
       <div className="space-y-8">
-        <div>
-          <p className="text-sm font-medium text-teal-700">
-            Civic Management Dashboard
-          </p>
-
-          <h1 className="mt-1 text-3xl font-bold tracking-tight text-slate-900">
-            Welcome back, {user?.name} 👋
-          </h1>
-
-          <p className="text-muted mt-2">
-            Monitor civic issues, track progress, and manage community reports
-            from one place.
-          </p>
-        </div>
-
-        {error && (
-          <div className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-600">
-            {error}
-          </div>
-        )}
+        <ManagementDashboardHeader error={error} userName={user?.name} />
 
         <DashboardStats
           loading={loading}
