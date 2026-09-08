@@ -13,6 +13,7 @@ import ManagementDashboardHeader from "./components/ManagementDashboardHeader";
 import VolunteerDashboardStats from "./components/VolunteerDashboardStats";
 import VolunteerWorkflow from "./components/VolunteerWorkflow";
 import VolunteerDashboardHeader from "./components/VolunteerDashboardHeader";
+import ManagementAssignedIssues from "./components/ManagementAssignedIssues";
 
 function DashboardPage() {
   const { user } = useAuth();
@@ -130,26 +131,7 @@ function DashboardPage() {
           unassignedIssues={unassignedIssues}
         />
 
-        <div className="card overflow-hidden">
-          <div className="border-b border-slate-100 px-6 py-5">
-            <div>
-              <h2 className="text-xl font-semibold text-slate-900">
-                My Assigned Issues
-              </h2>
-
-              <p className="text-muted mt-1 text-sm">
-                Issues specifically assigned to you.
-              </p>
-            </div>
-          </div>
-
-          <AssignedIssueList
-            issues={assignedToMe}
-            loading={loading}
-            emptyMessage="No issues are currently assigned to you."
-            limit={5}
-          />
-        </div>
+        <ManagementAssignedIssues issues={assignedToMe} loading={loading} />
 
         <div className="card overflow-hidden">
           <div className="border-b border-slate-100 px-6 py-5">
