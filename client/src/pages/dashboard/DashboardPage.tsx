@@ -19,6 +19,7 @@ import IssueManagementFilters from "./components/IssueManagementFilters";
 import ManagementIssueList from "./components/ManagementIssueList";
 import CitizenDashboardHeader from "./components/CitizenDashboardHeader";
 import CitizenDashboardStats from "./components/CitizenDashboardStats";
+import CitizenDashboardError from "./components/CitizenDashboardError";
 
 function DashboardPage() {
   const { user } = useAuth();
@@ -186,11 +187,7 @@ function DashboardPage() {
         reputation={user?.reputation ?? 0}
       />
 
-      {error && (
-        <div className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-600">
-          {error}
-        </div>
-      )}
+      <CitizenDashboardError error={error} />
 
       <div className="card overflow-hidden">
         <div className="flex items-center justify-between border-b border-slate-100 px-6 py-5">
