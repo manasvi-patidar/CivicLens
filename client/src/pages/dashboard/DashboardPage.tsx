@@ -18,6 +18,7 @@ import IssueManagementHeader from "./components/IssueManagementHeader";
 import IssueManagementFilters from "./components/IssueManagementFilters";
 import ManagementIssueList from "./components/ManagementIssueList";
 import CitizenDashboardHeader from "./components/CitizenDashboardHeader";
+import CitizenDashboardStats from "./components/CitizenDashboardStats";
 
 function DashboardPage() {
   const { user } = useAuth();
@@ -178,41 +179,12 @@ function DashboardPage() {
     <div className="space-y-8">
       <CitizenDashboardHeader userName={user?.name} />
 
-      <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-        <div className="card p-6">
-          <p className="text-muted text-sm">My Reports</p>
-
-          <p className="mt-2 text-3xl font-bold text-slate-900">
-            {loading ? "—" : myReports}
-          </p>
-
-          <p className="mt-1 text-sm text-slate-500">Issues reported by you</p>
-        </div>
-
-        <div className="card p-6">
-          <p className="text-muted text-sm">Open Issues</p>
-
-          <p className="mt-2 text-3xl font-bold text-slate-900">
-            {loading ? "—" : openIssues}
-          </p>
-
-          <p className="mt-1 text-sm text-slate-500">
-            Issues awaiting resolution
-          </p>
-        </div>
-
-        <div className="card p-6">
-          <p className="text-muted text-sm">Reputation</p>
-
-          <p className="mt-2 text-3xl font-bold text-slate-900">
-            {user?.reputation ?? 0}
-          </p>
-
-          <p className="mt-1 text-sm text-slate-500">
-            Your CivicLens reputation
-          </p>
-        </div>
-      </div>
+      <CitizenDashboardStats
+        loading={loading}
+        myReports={myReports}
+        openIssues={openIssues}
+        reputation={user?.reputation ?? 0}
+      />
 
       {error && (
         <div className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-600">
