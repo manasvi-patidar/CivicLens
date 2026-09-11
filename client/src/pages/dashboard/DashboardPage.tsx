@@ -17,6 +17,7 @@ import ManagementAssignedIssues from "./components/ManagementAssignedIssues";
 import IssueManagementHeader from "./components/IssueManagementHeader";
 import IssueManagementFilters from "./components/IssueManagementFilters";
 import ManagementIssueList from "./components/ManagementIssueList";
+import CitizenDashboardHeader from "./components/CitizenDashboardHeader";
 
 function DashboardPage() {
   const { user } = useAuth();
@@ -175,20 +176,7 @@ function DashboardPage() {
 
   return (
     <div className="space-y-8">
-      <div>
-        <p className="text-sm font-medium text-teal-700">
-          Open Civic Intelligence Platform
-        </p>
-
-        <h1 className="mt-1 text-3xl font-bold tracking-tight text-slate-900">
-          Welcome back, {user?.name} 👋
-        </h1>
-
-        <p className="text-muted mt-2">
-          Help make your community better by reporting and tracking civic
-          issues.
-        </p>
-      </div>
+      <CitizenDashboardHeader userName={user?.name} />
 
       <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
         <div className="card p-6">
