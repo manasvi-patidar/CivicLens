@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
 import { useAuth } from "../../hooks/useAuth";
 
 import { getDashboardStats } from "./utils/dashboard-stats";
@@ -23,6 +22,7 @@ import RecentIssues from "./components/RecentIssues";
 import MakeImpact from "./components/MakeImpact";
 import GettingStarted from "./components/GettingStarted";
 import VolunteerAssignedIssues from "./components/VolunteerAssignedIssues";
+import ManagementIssueFooter from "./components/ManagementIssueFooter";
 
 function DashboardPage() {
   const { user } = useAuth();
@@ -137,16 +137,7 @@ function DashboardPage() {
 
           <ManagementIssueList issues={filteredIssues} loading={loading} />
 
-          {!loading && filteredIssues.length > 0 && (
-            <div className="border-t border-slate-100 px-6 py-4">
-              <Link
-                to="/issues"
-                className="text-sm font-medium text-teal-700 hover:text-teal-800"
-              >
-                View all issues →
-              </Link>
-            </div>
-          )}
+          {!loading && filteredIssues.length > 0 && <ManagementIssueFooter />}
         </div>
       </div>
     );
