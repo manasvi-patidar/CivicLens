@@ -1,7 +1,26 @@
-import { getUserContributionIssues } from "./contribution.repository";
+import {
+  getUserContributionActivities,
+  getUserContributionIssues,
+} from "./contribution.repository";
+
+interface ContributionIssue {
+  id: string;
+  status: string;
+  category: string;
+  createdAt: Date;
+}
+
+interface ContributionActivity {
+  id: string;
+  type: string;
+  createdAt: Date;
+}
 
 export const getUserContributionsService = async (userId: string) => {
-  const issues = await getUserContributionIssues(userId);
+  const issues: ContributionIssue[] = await getUserContributionIssues(userId);
+
+  const activities: ContributionActivity[] =
+    await getUserContributionActivities(userId);
 
   const total = issues.length;
 
@@ -17,12 +36,13 @@ export const getUserContributionsService = async (userId: string) => {
 
   const categories = issues.reduce<Record<string, number>>((result, issue) => {
     result[issue.category] = (result[issue.category] || 0) + 1;
+
     return result;
   }, {});
 
-  const dailyActivity = issues.reduce<Record<string, number>>(
-    (result, issue) => {
-      const date = issue.createdAt.toISOString().split("T")[0];
+  const dailyActivity = activities.reduce<Record<string, number>>(
+    (result, activity) => {
+      const date = activity.createdAt.toISOString().split("T")[0];
 
       result[date] = (result[date] || 0) + 1;
 
