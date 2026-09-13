@@ -16,3 +16,19 @@ export const getUserContributionIssues = async (userId: string) => {
     },
   });
 };
+
+export const getUserContributionActivities = async (userId: string) => {
+  return prisma.activity.findMany({
+    where: {
+      userId,
+    },
+    select: {
+      id: true,
+      type: true,
+      createdAt: true,
+    },
+    orderBy: {
+      createdAt: "asc",
+    },
+  });
+};
