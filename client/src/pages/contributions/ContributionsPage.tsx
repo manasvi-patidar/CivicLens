@@ -52,11 +52,38 @@ function ContributionsPage() {
       return [];
     }
 
-    return Object.entries(data.dailyActivity).sort(
-      ([first], [second]) =>
-        new Date(first).getTime() - new Date(second).getTime(),
-    );
+    const now = new Date();
+
+    const year = now.getFullYear();
+    const month = now.getMonth();
+
+    const daysInMonth = new Date(year, month + 1, 0).getDate();
+
+    const entries: [string, number][] = [];
+
+    for (let day = 1; day <= daysInMonth; day++) {
+      const date = `${year}-${String(month + 1).padStart(2, "0")}-${String(
+        day,
+      ).padStart(2, "0")}`;
+
+      entries.push([date, data.dailyActivity[date] || 0]);
+    }
+
+    return entries;
   }, [data]);
+
+  const calendarStartDay = useMemo(() => {
+    const now = new Date();
+
+    return new Date(now.getFullYear(), now.getMonth(), 1).getDay();
+  }, []);
+
+  const currentMonthLabel = useMemo(() => {
+    return new Date().toLocaleDateString("en-IN", {
+      month: "long",
+      year: "numeric",
+    });
+  }, []);
 
   const maxActivity = useMemo(() => {
     if (activityEntries.length === 0) {
@@ -188,68 +215,70 @@ function ContributionsPage() {
           </h2>
 
           <p className="mt-1 text-sm text-slate-500">
-            Your issue reports over time.
+            Your reports, comments and civic activities over time.
           </p>
         </div>
 
-        {activityEntries.length === 0 ? (
-          <div className="mt-6 rounded-lg bg-slate-50 px-5 py-8 text-center">
-            <p className="text-sm text-slate-500">
-              No contribution activity yet.
+        <div className="mt-6">
+          <div className="flex items-center justify-between">
+            <p className="text-sm font-medium text-slate-700">
+              {currentMonthLabel}
             </p>
 
-            <Link
-              to="/issues/create"
-              className="btn btn-primary mt-4 inline-flex"
-            >
-              Report an Issue
-            </Link>
+            <p className="text-xs text-slate-400">
+              {activityEntries.reduce((total, [, count]) => total + count, 0)}{" "}
+              activities this month
+            </p>
           </div>
-        ) : (
-          <div className="mt-6">
-            <div className="flex items-center justify-between text-xs text-slate-400">
-              <span>
-                {new Date(activityEntries[0][0]).toLocaleDateString("en-IN", {
-                  month: "short",
-                  year: "numeric",
-                })}
-              </span>
 
-              <span>
-                {new Date(
-                  activityEntries[activityEntries.length - 1][0],
-                ).toLocaleDateString("en-IN", {
-                  month: "short",
-                  year: "numeric",
-                })}
-              </span>
-            </div>
+          <div className="mt-4 grid grid-cols-7 gap-2">
+            {["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].map((day) => (
+              <div
+                key={day}
+                className="text-center text-xs font-medium text-slate-400"
+              >
+                {day}
+              </div>
+            ))}
 
-            <div className="mt-3 flex flex-wrap gap-2">
-              {activityEntries.map(([date, count]) => (
-                <div
-                  key={date}
-                  title={`${count} issue${
-                    count === 1 ? "" : "s"
-                  } on ${new Date(date).toLocaleDateString("en-IN")}`}
-                  className={`h-6 w-6 rounded-md ${getActivityClass(count)}`}
-                />
-              ))}
-            </div>
+            {Array.from({ length: calendarStartDay }).map((_, index) => (
+              <div key={`empty-${index}`} className="h-8 w-full" />
+            ))}
 
-            <div className="mt-5 flex items-center justify-end gap-2 text-xs text-slate-400">
-              <span>Less</span>
-
-              <span className="h-4 w-4 rounded bg-slate-100" />
-              <span className="h-4 w-4 rounded bg-teal-200" />
-              <span className="h-4 w-4 rounded bg-teal-300" />
-              <span className="h-4 w-4 rounded bg-teal-500" />
-              <span className="h-4 w-4 rounded bg-teal-700" />
-
-              <span>More</span>
-            </div>
+            {activityEntries.map(([date, count]) => (
+              <div
+                key={date}
+                title={`${count} activity${
+                  count === 1 ? "" : "ies"
+                } on ${new Date(`${date}T00:00:00`).toLocaleDateString(
+                  "en-IN",
+                  {
+                    day: "numeric",
+                    month: "short",
+                    year: "numeric",
+                  },
+                )}`}
+                className={`flex h-8 w-full items-center justify-center rounded-md text-xs font-medium transition-transform hover:scale-105 ${getActivityClass(
+                  count,
+                )} ${count > 0 ? "text-slate-700" : "text-slate-400"}`}
+              >
+                {Number(date.split("-")[2])}
+              </div>
+            ))}
           </div>
-        )}
+
+          <div className="mt-5 flex items-center justify-end gap-2 text-xs text-slate-400">
+            <span>Less</span>
+
+            <span className="h-4 w-4 rounded bg-slate-100" />
+            <span className="h-4 w-4 rounded bg-teal-200" />
+            <span className="h-4 w-4 rounded bg-teal-300" />
+            <span className="h-4 w-4 rounded bg-teal-500" />
+            <span className="h-4 w-4 rounded bg-teal-700" />
+
+            <span>More</span>
+          </div>
+        </div>
       </div>
 
       <div className="grid gap-6 lg:grid-cols-2">
