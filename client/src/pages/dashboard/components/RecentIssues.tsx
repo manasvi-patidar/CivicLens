@@ -39,13 +39,18 @@ function RecentIssues({ issues, loading }: RecentIssuesProps) {
               No issues reported yet.
             </p>
 
-            <p className="text-muted mt-1 text-sm">
+            <p className="text-muted mt-2 text-sm leading-6">
               Be the first to report a civic issue in your community.
             </p>
 
-            <Link to="/issues/new" className="btn btn-primary mt-4">
-              Report an Issue
-            </Link>
+            <div className="mt-5">
+              <Link
+                to="/issues/new"
+                className="btn btn-primary inline-flex items-center"
+              >
+                Report an Issue
+              </Link>
+            </div>
           </div>
         ) : (
           issues.map((issue) => (
