@@ -1,11 +1,19 @@
-import { NavLink } from "react-router-dom";
+import { NavLink, useLocation } from "react-router-dom";
 
 function Sidebar() {
+  const location = useLocation();
+
+  const isIssuesActive =
+    location.pathname === "/issues" ||
+    (location.pathname.startsWith("/issues/") &&
+      location.pathname !== "/issues/new");
+
   return (
     <aside className="w-60 shrink-0 border-r border-slate-200 bg-white">
       <nav className="flex flex-col gap-1 p-4">
         <NavLink
           to="/"
+          end
           className={({ isActive }) =>
             `rounded-lg px-3 py-2.5 text-sm font-medium transition ${
               isActive
@@ -32,9 +40,9 @@ function Sidebar() {
 
         <NavLink
           to="/issues"
-          className={({ isActive }) =>
+          className={() =>
             `rounded-lg px-3 py-2.5 text-sm font-medium transition ${
-              isActive
+              isIssuesActive
                 ? "bg-teal-50 text-teal-700"
                 : "text-slate-600 hover:bg-slate-50 hover:text-slate-900"
             }`
