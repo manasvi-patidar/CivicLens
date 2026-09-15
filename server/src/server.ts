@@ -1,8 +1,9 @@
 import dotenv from "dotenv";
-import app from "./app";
-import { logger } from "./shared/logger/logger";
 
 dotenv.config();
+
+import app from "./app";
+import { logger } from "./shared/logger/logger";
 
 const PORT = Number(process.env.PORT) || 5000;
 
