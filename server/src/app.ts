@@ -15,7 +15,13 @@ import userRoutes from "./modules/users/user.routes";
 
 const app = express();
 
-app.use(cors());
+app.use(
+  cors({
+    origin: process.env.CLIENT_URL || "http://localhost:5173",
+    credentials: true,
+  }),
+);
+
 app.use(helmet());
 app.use(compression());
 app.use(express.json());
