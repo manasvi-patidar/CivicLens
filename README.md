@@ -1,583 +1,496 @@
-# CivicLens 🏙️
+# 🏙️ CivicLens
 
-> **A role-based civic issue reporting and management platform that connects citizens with volunteers, authorities, and administrators to track public issues from reporting to resolution.**
+### A Full-Stack Civic Issue Reporting & Management Platform
 
-CivicLens is a full-stack civic technology platform designed to make community issue reporting more structured, transparent, and actionable.
+CivicLens is a full-stack web application designed to streamline the reporting, tracking, management, and resolution of civic issues.
 
-Instead of treating civic complaints as simple CRUD records, CivicLens models the complete issue lifecycle — from **citizen reporting and evidence upload to categorization, prioritization, assignment, status management, collaboration, activity tracking, and contribution analytics**.
+The platform connects **citizens, volunteers, authorities, and administrators** through a centralized system where civic issues can be reported, categorized, prioritized, assigned, tracked, and resolved through a structured workflow.
 
-The platform provides different workflows for **Citizens, Volunteers, Authorities, and Administrators**, with access controlled through role-based authorization.
+Built with a modern **TypeScript-based full-stack architecture**, CivicLens combines a responsive React frontend, a structured Express backend, Prisma ORM, and PostgreSQL to provide a scalable foundation for digital civic issue management.
 
----
+> **CivicLens — Report. Track. Collaborate. Resolve.**
 
-## ✨ Why CivicLens?
+## 📑 Table of Contents
 
-Civic problems such as damaged roads, water leakage, garbage accumulation, broken streetlights, drainage issues, and damaged public property often require more than simply submitting a complaint.
+- [Application Preview](#-application-preview)
+- [Problem Statement](#-problem-statement)
+- [Solution](#-solution)
+- [Key Features](#-key-features)
+- [User Roles & Permissions](#-user-roles--permissions)
+- [Issue Lifecycle](#-issue-lifecycle)
+- [Technology Stack](#️-technology-stack)
+- [System Architecture](#️-system-architecture)
+- [Project Structure](#-project-structure)
+- [Getting Started](#-getting-started)
+- [API Overview](#-api-overview)
+- [Database Design](#️-database-design)
+- [Security & Authentication](#-security--authentication)
+- [Future Enhancements](#-future-enhancements)
+- [Project Highlights](#-project-highlights)
+- [Author](#️-author)
 
-CivicLens focuses on the workflow around an issue:
+## 📸 Application Preview
 
-```text
-Citizen Reports Issue
-        ↓
-Issue Categorized & Prioritized
-        ↓
-Evidence / Location Captured
-        ↓
-Authority / Admin Reviews
-        ↓
-Issue Assigned to Responsible Personnel
-        ↓
-Status Updated
-        ↓
-Community Collaboration & Activity Tracking
-        ↓
-Issue Resolved
-```
+CivicLens provides dedicated interfaces for different user roles and supports the complete civic issue lifecycle — from reporting an issue to tracking its progress and resolution.
 
-This makes CivicLens a **workflow-oriented civic management system** rather than a basic complaint submission application.
+### 🔐 Authentication
 
----
-
-## 🚀 Key Features
-
-### 🔐 Authentication & Security
-
-- User registration and login
-- JWT-based authentication
-- Protected API routes
-- Token verification middleware
-- Role-based access control (RBAC)
-- Secure password hashing using `bcrypt`
-- Profile management
-- Input validation using `Zod`
-- Centralized API error handling
-- HTTP security headers using Helmet
-- Configurable CORS
-- HTTP response compression
-- Request logging
-- Environment-based configuration
-
----
-
-### 👥 Role-Based Access Control
-
-CivicLens supports four application roles:
-
-| Role          | Responsibilities                                                                                                       |
-| ------------- | ---------------------------------------------------------------------------------------------------------------------- |
-| **CITIZEN**   | Report issues, track submitted reports, participate through comments, view contributions and reputation                |
-| **VOLUNTEER** | Work with issues assigned to them and participate in the civic issue workflow                                          |
-| **AUTHORITY** | Monitor civic issues, manage issue status, review assignments and oversee resolution                                   |
-| **ADMIN**     | Full management capabilities including user creation, issue assignment, issue management and administrative operations |
-
-Authorization is enforced at the API level rather than relying only on frontend visibility.
-
-Example protected workflows include:
-
-- Administrative user creation
-- Issue assignment
-- Issue status management
-- Issue deletion
-- Comment moderation
-- Authenticated issue creation
-- Authenticated contribution access
-
----
-
-## 📊 Role-Specific Dashboards
-
-CivicLens dynamically provides different dashboard experiences depending on the authenticated user's role.
+![CivicLens Login](./docs/screenshots/01-login.png)
 
 ### 👤 Citizen Dashboard
 
-Citizens can view:
+![Citizen Dashboard](./docs/screenshots/02-citizen-dashboard.png)
 
-- Their reported issues
-- Open issues
-- Reputation score
-- Recent community issues
-- Contribution-related information
-- Getting-started guidance
+### 📝 Report a Civic Issue
 
-### 🏛️ Authority / Management Dashboard
+![Report Issue](./docs/screenshots/03-report-issue-form.png)
 
-Management users can monitor:
+### 📍 Issue Location
 
-- Total issues
-- Open issues
-- In-progress issues
-- Resolved issues
-- High-priority issues
-- Assigned issues
-- Unassigned issues
-- Resolution rate
-- Issues assigned to themselves
-- Issue management filters
-- Issue sorting
-- Issue assignment state
+![Issue Location](./docs/screenshots/03-report-issue-location.png)
+
+### 📋 Issues & Issue Details
+
+![Issues List](./docs/screenshots/04-issues-list-top.png)
+
+![Issue Details](./docs/screenshots/05-issue-details-top.png)
+
+### 📊 Management Dashboard
+
+![Management Dashboard](./docs/screenshots/08-management-dashboard.png)
 
 ### 🤝 Volunteer Workspace
 
-Volunteers receive a dedicated workflow showing:
+![Volunteer Workspace](./docs/screenshots/09-volunteer-workspace.png)
 
-- Issues assigned to them
-- Assigned issue count
-- Open assigned issues
-- In-progress assigned issues
-- Issue details and supporting information
-- Workflow guidance
+### 📈 Contributions & Activity
 
-This role-specific architecture allows each user type to focus on the operations relevant to them.
+![Contributions](./docs/screenshots/06-contributions.png)
 
----
+### 👤 User Profile
 
-# 🏙️ Civic Issue Management
+![Profile](./docs/screenshots/07-profile.png)
 
-CivicLens supports the complete lifecycle of a civic issue.
+## 🎯 Problem Statement
 
-### Issue information
+Civic issues such as damaged roads, water-related problems, faulty streetlights, garbage accumulation, drainage issues, and damage to public infrastructure often require coordination between citizens and the authorities responsible for addressing them.
 
-Each issue can contain:
+In a conventional reporting process, several challenges can arise:
 
-- Title
-- Detailed description
-- Category
-- Priority
-- Address
-- Latitude
-- Longitude
-- Evidence image
-- Creator
-- Assigned user
-- Creation timestamp
-- Last updated timestamp
+- 📢 **Fragmented reporting** — Civic complaints may be reported through different channels, making centralized tracking difficult.
+- 🔎 **Limited visibility** — Citizens may have little visibility into the current status of an issue after reporting it.
+- 👥 **Coordination challenges** — Authorities and volunteers need a structured way to manage, assign, and work on reported issues.
+- 📊 **Lack of structured information** — Issues can vary in category, priority, location, and status, making systematic management important.
+- 📝 **Limited activity tracking** — Changes made to an issue need to be traceable throughout its lifecycle.
 
-### Issue Categories
+### The Need
+
+A centralized platform can bring these interactions into a single system, providing structured issue reporting, role-specific access, assignment workflows, progress tracking, and transparent activity history.
+
+**CivicLens was developed to address this need by providing a unified platform for reporting, managing, collaborating on, and tracking civic issues from submission through resolution.**
+
+## 💡 Solution
+
+**CivicLens** provides a centralized, role-based platform for managing civic issues throughout their lifecycle.
+
+The application allows citizens to report issues with relevant information such as category, priority, description, images, and location. Once submitted, issues can be reviewed and managed by authorized users, assigned to appropriate personnel, updated as work progresses, and tracked through their resolution.
+
+The platform is built around four distinct user roles:
+
+- 👤 **Citizens** — Report civic issues and monitor their progress.
+- 🤝 **Volunteers** — Work on issues assigned to them and contribute to the resolution process.
+- 🏛️ **Authorities** — Manage reported issues, assign work, update statuses, and oversee civic issue resolution.
+- 🛡️ **Administrators** — Perform administrative operations and manage the platform at a higher level.
+
+### 🔄 Centralized Issue Lifecycle
+
+CivicLens structures the issue management process into a clear workflow:
+
+**Report → Review → Assign → Work → Track → Resolve**
+
+Each issue maintains its own status, priority, category, associated users, comments, and activity history, providing a structured record of how the issue progresses through the system.
+
+### 🧩 Role-Based Experience
+
+Instead of providing every user with the same interface, CivicLens presents functionality according to the user's role and permissions. This creates separate workflows for citizens, volunteers, authorities, and administrators while maintaining a shared underlying platform.
+
+### 📌 From Report to Resolution
+
+CivicLens brings together:
+
+- Issue reporting
+- Issue categorization and prioritization
+- Image-based issue documentation
+- Issue assignment
+- Status management
+- User collaboration through comments
+- Activity tracking
+- Role-specific dashboards
+- User and contribution management
+
+This creates a single system where civic issues can be **reported, organized, assigned, monitored, and managed throughout their lifecycle**.
+
+## ✨ Key Features
+
+### 🔐 Secure Authentication & Role-Based Access
+
+- JWT-based user authentication with secure password hashing.
+- Role-based authorization for **Citizens, Volunteers, Authorities, and Administrators**.
+- Protected frontend routes and backend authorization checks.
+
+### 🏙️ Complete Civic Issue Management
+
+- Report civic issues with **category, priority, description, location, and images**.
+- Track issues through their lifecycle: **Open → In Progress → Resolved / Rejected**.
+- View detailed issue information and current progress.
+
+### 👥 Multi-Role Collaboration
+
+- Authorities can manage issues and assign them to appropriate users.
+- Volunteers can access and work with their assigned issues.
+- Citizens can monitor the issues they have reported.
+
+### 📊 Role-Specific Dashboards
+
+- Dedicated dashboards tailored to different user roles.
+- Relevant issue statistics, activities, and workflows based on permissions.
+
+### 💬 Comments & Activity Tracking
+
+- Users can collaborate through issue-level comments.
+- Issue activity history records important actions and status changes, providing a chronological view of progress.
+
+### ☁️ Image Upload & Cloud Storage
+
+- Civic issues can include image evidence.
+- Uploaded images are handled through cloud-based media storage rather than relying solely on local server storage.
+
+### 🧩 Structured Full-Stack Architecture
+
+- Type-safe **TypeScript** implementation across frontend and backend.
+- Layered backend architecture separating **controllers, services, repositories, and database access**.
+- **Prisma ORM + PostgreSQL** for structured and relational data management.
+
+## 👥 User Roles & Permissions
+
+CivicLens uses **Role-Based Access Control (RBAC)** to provide different capabilities and workflows to different types of users.
+
+| Role             | Core Responsibilities                                                                                     |
+| ---------------- | --------------------------------------------------------------------------------------------------------- |
+| 👤 **Citizen**   | Report civic issues, view reported issues, track progress, and participate through comments.              |
+| 🤝 **Volunteer** | Access assigned issues, contribute to issue resolution, and update relevant issue information.            |
+| 🏛️ **Authority** | Review and manage issues, assign issues, update priorities/statuses, and oversee the resolution workflow. |
+| 🛡️ **Admin**     | Perform platform-level administrative operations and manage users and system activity.                    |
+
+### 🔒 Access Control
+
+Authorization is enforced at both the **frontend and backend levels**:
+
+- Protected routes restrict access to authenticated users.
+- Role-specific interfaces expose relevant functionality.
+- Backend authorization prevents unauthorized operations even when API endpoints are accessed directly.
+- User roles are persisted and managed through the application database.
+
+This ensures that users can interact only with functionality permitted by their assigned role.
+
+## 🔄 Issue Lifecycle
+
+CivicLens follows a structured workflow for managing civic issues from initial reporting through their final outcome.
 
 ```text
-ROAD
-WATER
-ELECTRICITY
-GARBAGE
-STREETLIGHT
-DRAINAGE
-PUBLIC_PROPERTY
-OTHER
+┌───────────────┐
+│    Citizen    │
+│ Reports Issue │
+└───────┬───────┘
+        │
+        ▼
+┌───────────────┐
+│     OPEN      │
+└───────┬───────┘
+        │
+        ▼
+┌───────────────┐
+│  IN_PROGRESS  │
+└───────┬───────┘
+        │
+        ├──────────────────┐
+        ▼                  ▼
+┌───────────────┐   ┌───────────────┐
+│    RESOLVED   │   │    REJECTED   │
+└───────────────┘   └───────────────┘
 ```
 
-### Issue Priority
+### Workflow Overview
+
+1. **Report** — A citizen submits a civic issue with relevant details and supporting information.
+2. **Open** — The newly reported issue enters the system as an open issue.
+3. **Assignment & Work** — Authorized users can manage and assign issues, after which the issue can move into progress.
+4. **Resolution** — Once addressed, the issue can be marked as resolved.
+5. **Rejection** — Issues that do not qualify or cannot be processed can follow the rejection path.
+6. **Activity History** — Important changes throughout the issue lifecycle are recorded in the activity timeline.
+
+## 🛠️ Technology Stack
+
+CivicLens is built using a **TypeScript-based full-stack architecture**, with a React frontend, Express backend, Prisma ORM, and PostgreSQL database.
+
+| Layer                    | Technologies                          |
+| ------------------------ | ------------------------------------- |
+| **Frontend**             | React, TypeScript, React Router, Vite |
+| **Styling**              | Tailwind CSS                          |
+| **Backend**              | Node.js, Express, TypeScript          |
+| **API**                  | RESTful APIs                          |
+| **ORM**                  | Prisma                                |
+| **Database**             | PostgreSQL                            |
+| **Authentication**       | JWT, bcrypt                           |
+| **File & Image Storage** | Cloudinary                            |
+| **Development**          | Git, GitHub                           |
+| **Package Management**   | npm                                   |
+
+### 🏗️ Architecture at a Glance
 
 ```text
-LOW
-MEDIUM
-HIGH
+React + TypeScript
+        │
+        │ REST API
+        ▼
+Node.js + Express + TypeScript
+        │
+        ▼
+Controllers → Services → Repositories
+        │
+        ▼
+      Prisma ORM
+        │
+        ▼
+    PostgreSQL
 ```
 
-### Issue Status Lifecycle
+Supporting services such as **JWT authentication** and **Cloudinary image storage** integrate into the application where required.
+
+## 🏗️ System Architecture
+
+CivicLens follows a layered full-stack architecture that separates the presentation layer, API layer, business logic, data-access logic, and persistence layer.
 
 ```text
-OPEN
+                         ┌──────────────────────────┐
+                         │       CivicLens User     │
+                         │ Citizen / Volunteer /    │
+                         │ Authority / Admin        │
+                         └────────────┬─────────────┘
+                                      │
+                                      ▼
+                         ┌──────────────────────────┐
+                         │     React Frontend       │
+                         │      TypeScript          │
+                         │                          │
+                         │ • UI Components          │
+                         │ • Routing                │
+                         │ • Auth Context           │
+                         │ • Protected Routes       │
+                         │ • API Services           │
+                         └────────────┬─────────────┘
+                                      │
+                              HTTP / REST API
+                                      │
+                                      ▼
+                         ┌──────────────────────────┐
+                         │     Express Backend      │
+                         │      TypeScript          │
+                         │                          │
+                         │ • Routes                 │
+                         │ • Middleware             │
+                         │ • Controllers            │
+                         │ • Services               │
+                         │ • Repositories           │
+                         │ • Error Handling         │
+                         └────────────┬─────────────┘
+                                      │
+                                      ▼
+                         ┌──────────────────────────┐
+                         │       Prisma ORM         │
+                         │                          │
+                         │ • Type-safe DB access    │
+                         │ • Data modeling          │
+                         │ • Query management       │
+                         └────────────┬─────────────┘
+                                      │
+                                      ▼
+                         ┌──────────────────────────┐
+                         │       PostgreSQL         │
+                         │                          │
+                         │ Users • Issues           │
+                         │ Comments • Activities    │
+                         │ Assignments • Relations  │
+                         └──────────────────────────┘
+
+             ┌────────────────────┐
+             │     Cloudinary     │
+             │   Image Storage    │
+             └─────────▲──────────┘
+                       │
+                Image Uploads
+```
+
+### Architectural Flow
+
+A typical CivicLens operation follows this flow:
+
+```text
+User Interaction
+       ↓
+React Component
+       ↓
+Frontend API Service
+       ↓
+Express Route
+       ↓
+Authentication / Authorization Middleware
+       ↓
+Controller
+       ↓
+Service Layer
+       ↓
+Repository Layer
+       ↓
+Prisma ORM
+       ↓
+PostgreSQL
+```
+
+This separation keeps responsibilities organized and makes the backend easier to maintain, test, and extend.
+
+### Security & Access Control
+
+Authentication and authorization are integrated into the request flow:
+
+- **JWT tokens** are used to authenticate users.
+- Protected backend routes validate authenticated requests.
+- **Role-based authorization** restricts operations according to user roles.
+- Passwords are securely hashed rather than stored as plain text.
+- Sensitive configuration such as database credentials and authentication secrets is managed through environment variables.
+
+## 📁 Project Structure
+
+CivicLens is organized as a separate frontend and backend application, allowing each layer to evolve independently while communicating through REST APIs.
+
+```text
+CivicLens/
+│
+├── client/                         # React frontend
+│   ├── public/                    # Static frontend assets
+│   ├── src/
+│   │   ├── components/            # Reusable UI components
+│   │   ├── pages/                 # Application pages
+│   │   ├── services/              # API communication
+│   │   ├── context/               # Global application context
+│   │   ├── routes/                # Route configuration
+│   │   ├── types/                 # TypeScript types
+│   │   └── ...
+│   ├── package.json
+│   └── README.md
+│
+├── server/                         # Express backend
+│   ├── src/
+│   │   ├── controllers/            # Request handling
+│   │   ├── services/               # Business logic
+│   │   ├── repositories/            # Data-access layer
+│   │   ├── middleware/              # Auth, validation & middleware
+│   │   ├── routes/                  # API route definitions
+│   │   ├── validators/              # Request validation
+│   │   ├── config/                  # Application configuration
+│   │   └── ...
+│   ├── prisma/
+│   │   └── schema.prisma            # Database schema
+│   ├── package.json
+│   └── README.md
+│
+├── docs/
+│   └── screenshots/                 # Project screenshots
+│
+└── README.md                        # Project documentation
+```
+
+### 📦 Application Layers
+
+| Layer            | Responsibility                                                           |
+| ---------------- | ------------------------------------------------------------------------ |
+| **Client**       | User interface, routing, state/context management, and API communication |
+| **Routes**       | Define and organize API endpoints                                        |
+| **Middleware**   | Authentication, authorization, validation, and request processing        |
+| **Controllers**  | Handle incoming requests and API responses                               |
+| **Services**     | Implement application and business logic                                 |
+| **Repositories** | Encapsulate database access                                              |
+| **Prisma**       | Type-safe ORM and database interaction                                   |
+| **PostgreSQL**   | Persistent application data                                              |
+
+The separation of concerns keeps the codebase modular and makes individual layers easier to maintain and extend.
+
+## 🚀 Getting Started
+
+### Prerequisites
+
+- Node.js & npm
+- PostgreSQL
+- Git
+- Cloudinary account
+
+### Setup
+
+```bash
+git clone <YOUR_GITHUB_REPOSITORY_URL>
+cd CivicLens
+
+cd client && npm install
+cd ../server && npm install
+```
+
+Create `.env` files in `client/` and `server/` using the provided `.env.example` files.
+
+From `server/`:
+
+```bash
+npx prisma generate
+npx prisma migrate deploy
+npm run dev
+```
+
+From `client/`:
+
+```bash
+npm run dev
+```
+
+Open the Vite URL shown in the terminal, typically `http://localhost:5173`.
+
+## 🔌 API Overview
+
+CivicLens exposes a RESTful backend API for authentication, user management, civic issue management, comments, assignments, and activity tracking.
+
+### API Base URL
+
+```text
+http://localhost:5000/api
+```
+
+### Core API Modules
+
+| Module             | Purpose                                               |
+| ------------------ | ----------------------------------------------------- |
+| **Authentication** | User registration, login, and authentication          |
+| **Users**          | User profiles, roles, and user management             |
+| **Issues**         | Create, view, update, assign, and manage civic issues |
+| **Comments**       | Add and manage issue-related discussions              |
+| **Activities**     | Track important actions and status changes            |
+| **Assignments**    | Assign issues to volunteers or responsible users      |
+
+### Request Flow
+
+```text
+Client
   ↓
-IN_PROGRESS
+REST API
   ↓
-RESOLVED
-```
-
-Issues can also be marked:
-
-```text
-REJECTED
-```
-
-This provides a structured representation of an issue's progress rather than storing a simple complaint record.
-
----
-
-# 🔎 Search, Filtering & Pagination
-
-The issue discovery interface supports:
-
-### Search
-
-Users can search civic issues by title.
-
-### Filtering
-
-Issues can be filtered by:
-
-- Category
-- Status
-
-The management dashboard additionally supports:
-
-- Priority
-- Assignment state
-
-### Sorting
-
-Issue lists can be ordered by creation time.
-
-### Pagination
-
-The issue API supports paginated retrieval using:
-
-```text
-?page=1&limit=10
-```
-
-The frontend provides:
-
-- Previous / Next navigation
-- Page selection
-- Current page information
-- Search-aware filtering
-- Filter reset
-
-Search, filters and pagination are integrated into the issue browsing workflow rather than being purely cosmetic frontend controls.
-
----
-
-# 🖼️ Evidence & Image Uploads
-
-CivicLens allows citizens to attach photographic evidence when reporting an issue.
-
-### Upload pipeline
-
-```text
-Frontend Form
-     ↓
-Multipart Form Data
-     ↓
-Multer
-     ↓
-Cloudinary
-     ↓
-Image URL
-     ↓
-PostgreSQL Issue Record
-```
-
-Supported image formats include:
-
-- JPG
-- JPEG
-- PNG
-- WebP
-
-Maximum upload size:
-
-```text
-5 MB
-```
-
-Images are stored through **Cloudinary**, while the resulting image URL is associated with the issue record.
-
----
-
-# 📍 Location-Aware Issue Data
-
-Every issue stores:
-
-```text
-latitude
-longitude
-address
-```
-
-This allows CivicLens to retain structured geographic information with every civic report.
-
-The current application captures and displays issue location information, while the architecture leaves room for future map-based visualization and geographic analytics.
-
----
-
-# 💬 Community Comments
-
-Users can participate in discussions around individual civic issues.
-
-Supported operations include:
-
-- Add comments
-- View comments
-- Edit own comments
-- Delete own comments
-- Administrative comment moderation
-
-Comments are associated with both:
-
-```text
-User
-  ↕
-Comment
-  ↕
-Issue
-```
-
-This creates an issue-specific collaboration layer instead of keeping communication separate from the reported problem.
-
----
-
-# 🕒 Activity Timeline
-
-CivicLens maintains an activity history for issues.
-
-Supported activity types include:
-
-```text
-ISSUE_CREATED
-STATUS_UPDATED
-COMMENT_ADDED
-ISSUE_ASSIGNED
-```
-
-An issue can therefore maintain a chronological history of important actions.
-
-Example:
-
-```text
-Issue created
-      ↓
-Comment added
-      ↓
-Issue assigned
-      ↓
-Status changed
-      ↓
-Comment added
-      ↓
-Issue resolved
-```
-
-This improves transparency and provides contextual history for an issue.
-
----
-
-# 👷 Issue Assignment
-
-Administrators can assign issues to:
-
-- Volunteers
-- Authorities
-
-The assignment workflow includes:
-
-1. Fetching eligible users
-2. Selecting a volunteer/authority
-3. Assigning the issue
-4. Recording the assignment
-5. Displaying the assigned user
-6. Including the assignment in the issue workflow
-
-Only valid `VOLUNTEER` and `AUTHORITY` users can be assigned through the backend service logic.
-
----
-
-# ✏️ Issue Editing & Permissions
-
-CivicLens applies ownership and lifecycle-based permissions.
-
-Citizens can edit their own issues while the issue is:
-
-```text
-OPEN
-```
-
-Citizens can delete their own issues while the issue is:
-
-```text
-OPEN
-```
-
-Administrators have broader issue management permissions.
-
-This means permissions are influenced by both:
-
-```text
-User Role
-      +
-Resource Ownership
-      +
-Issue State
-```
-
-rather than relying solely on whether a user is logged in.
-
----
-
-# 👤 Profiles & Reputation
-
-User profiles provide information such as:
-
-- Name
-- Email
-- Role
-- Reputation
-- Verification state
-- Account creation date
-- Reported issues
-
-The platform also maintains a reputation value for users, providing a foundation for future community engagement and trust mechanisms.
-
----
-
-# 📈 Contribution Analytics
-
-The Contributions section summarizes a user's civic activity.
-
-It provides information such as:
-
-- Total reported issues
-- Resolved issues
-- In-progress issues
-- Open issues
-- Rejected issues
-- Issues grouped by category
-- Daily activity
-
-This transforms raw issue records and activity records into user-facing contribution insights.
-
----
-
-# 🛡️ Backend Security & Validation
-
-The backend includes multiple layers of protection.
-
-### JWT Authentication
-
-Authentication uses signed JWT tokens containing user identity and role information.
-
-Protected requests use:
-
-```http
-Authorization: Bearer <token>
-```
-
-### Password Security
-
-Passwords are hashed using:
-
-```text
-bcrypt
-```
-
-before being stored.
-
-### RBAC Middleware
-
-Authorization is implemented through reusable middleware:
-
-```text
-protect()
-authorize(...)
-```
-
-This allows routes to explicitly define which roles may access sensitive operations.
-
-### Request Validation
-
-Incoming data is validated using `Zod`.
-
-Examples include:
-
-- Registration
-- Login
-- Profile updates
-- Issue creation
-- Issue updates
-- Status changes
-- Comments
-- Management-user creation
-
-### Security Middleware
-
-The API also uses:
-
-- Helmet
-- CORS
-- Compression
-- Cookie parser
-- Request logging
-- Centralized error handling
-
----
-
-# 🏗️ Architecture
-
-CivicLens follows a modular full-stack architecture.
-
-```text
-                    ┌──────────────────────┐
-                    │      React Client    │
-                    │   TypeScript + Vite  │
-                    └──────────┬───────────┘
-                               │
-                            Axios
-                               │
-                               ▼
-                    ┌──────────────────────┐
-                    │    Express REST API  │
-                    │      TypeScript      │
-                    └──────────┬───────────┘
-                               │
-                 ┌─────────────┼─────────────┐
-                 │             │             │
-                 ▼             ▼             ▼
-              Auth/RBAC     Services     Validation
-                 │             │             │
-                 └─────────────┼─────────────┘
-                               │
-                         Prisma ORM
-                               │
-                               ▼
-                    ┌──────────────────────┐
-                    │     PostgreSQL       │
-                    └──────────────────────┘
-
-                               │
-                               │ Image Uploads
-                               ▼
-                         ┌─────────────┐
-                         │  Cloudinary │
-                         └─────────────┘
-```
-
----
-
-# 🧩 Backend Architecture
-
-The backend is organized into feature-oriented modules.
-
-```text
-server/src/
-│
-├── config/
-│   ├── cloudinary.ts
-│   └── prisma.ts
-│
-├── middlewares/
-│   ├── auth.middleware.ts
-│   └── upload.middleware.ts
-│
-├── modules/
-│   ├── auth/
-│   ├── issue/
-│   ├── comment/
-│   ├── activity/
-│   ├── contribution/
-│   └── users/
-│
-├── shared/
-│   ├── errors/
-│   ├── logger/
-│   └── utils/
-│
-├── app.ts
-└── server.ts
-```
-
-Most business modules follow a layered structure:
-
-```text
-Route
+Authentication & Authorization
   ↓
 Controller
   ↓
@@ -590,738 +503,117 @@ Prisma
 PostgreSQL
 ```
 
-This separation keeps HTTP handling, business logic and database access independently organized.
+The API uses **JWT-based authentication** and **role-based authorization** to protect restricted operations.
 
----
+## 🗄️ Database Design
 
-# 🗄️ Database Design
+CivicLens uses **PostgreSQL** as its relational database with **Prisma ORM** for type-safe database access and relationship management.
 
-CivicLens uses **PostgreSQL** with **Prisma ORM**.
-
-Core entities include:
+### Core Data Models
 
 ```text
-User
- │
- ├──────────────┐
- │              │
- ▼              ▼
-Issue        Comment
- │
- ├───────────────┐
- │               │
- ▼               ▼
-Activity      Assigned User
+┌──────────────┐
+│     User     │
+└──────┬───────┘
+       │
+       ├───────────────┐
+       │               │
+       ▼               ▼
+┌──────────────┐  ┌──────────────┐
+│    Issue     │  │   Comment    │
+└──────┬───────┘  └──────────────┘
+       │
+       ├───────────────┐
+       │               │
+       ▼               ▼
+┌──────────────┐  ┌──────────────┐
+│  Assignment  │  │   Activity   │
+└──────────────┘  └──────────────┘
 ```
 
-### Main models
+### Main Models
 
-#### User
+| Model             | Purpose                                                     |
+| ----------------- | ----------------------------------------------------------- |
+| **User**          | Stores user accounts, roles, and profile information        |
+| **Issue**         | Stores reported civic issues and their current state        |
+| **Comment**       | Stores discussions associated with issues                   |
+| **Activity**      | Maintains a chronological record of important issue actions |
+| **IssueAssignee** | Represents issue assignment relationships                   |
 
-Stores:
+### Issue Classification
 
-- Identity
-- Authentication credentials
-- Role
-- Reputation
-- Verification state
-- Timestamps
+Issues are structured using predefined:
 
-#### Issue
+- **Categories:** Road, Water, Electricity, Garbage, Streetlight, Drainage, Public Property, Other
+- **Statuses:** Open, In Progress, Resolved, Rejected
+- **Priorities:** Low, Medium, High
 
-Stores:
+Prisma manages the relationships between these entities while PostgreSQL provides persistent relational storage.
 
-- Civic issue details
-- Category
-- Priority
-- Status
-- Location
-- Image
-- Creator
-- Assignee
-- Timestamps
+## 🔒 Security & Authentication
 
-#### Comment
-
-Stores:
-
-- Comment content
-- Issue relationship
-- User relationship
-- Timestamps
-
-#### Activity
-
-Stores:
-
-- Activity type
-- Human-readable message
-- Issue relationship
-- User relationship
-- Timestamp
-
-The database also contains indexes for commonly queried relationships and issue attributes such as:
-
-```text
-createdById
-assignedToId
-status
-category
-issueId
-userId
-```
-
----
-
-# 🔄 Prisma Migrations
-
-Database changes are tracked through Prisma migrations rather than relying on an undocumented database state.
-
-Current migration history includes migrations for:
-
-```text
-Initial schema
-Issue model
-Issue image support
-Comment model
-Activity timeline
-Issue assignment
-```
-
-For production database deployment, migrations can be applied using:
-
-```bash
-npx prisma migrate deploy
-```
-
----
-
-# 🎨 Frontend Architecture
-
-The frontend is built using:
-
-- React
-- TypeScript
-- Vite
-- React Router
-- Tailwind CSS
-- Axios
-
-Main frontend areas include:
-
-```text
-client/src/
-│
-├── components/
-├── context/
-├── hooks/
-├── layouts/
-├── pages/
-│   ├── auth/
-│   ├── dashboard/
-│   ├── issues/
-│   ├── contributions/
-│   └── profile/
-│
-├── routes/
-├── services/
-├── styles/
-└── types/
-```
-
-API communication is centralized through an Axios client, which automatically attaches the stored JWT to authenticated requests.
-
----
-
-# 🔐 Protected Frontend Routing
-
-The frontend uses a protected route layer to prevent unauthenticated users from accessing the application workspace.
-
-```text
-User
- ↓
-Authentication Check
- ↓
-Authenticated?
- ├── No  → Login
- └── Yes → Application
-```
-
-Authentication state is maintained through a dedicated React context and authentication service.
-
----
-
-# 📡 API Modules
-
-The backend exposes REST endpoints grouped around application capabilities.
-
-| Module                | Responsibility                                                             |
-| --------------------- | -------------------------------------------------------------------------- |
-| `/api/auth`           | Registration, login, current-user access and profile updates               |
-| `/api/issues`         | Issue creation, listing, details, updates, status, assignment and deletion |
-| `/api/comments`       | Comment management                                                         |
-| `/api/contributions`  | User contribution analytics                                                |
-| `/api/users`          | Administrative user management and assignable-user lookup                  |
-| `/api/.../activities` | Issue activity timeline                                                    |
-
----
-
-# 🧪 Validation & Error Handling
-
-The application uses structured validation and centralized error handling.
-
-Validation failures are handled separately from application-level errors.
-
-The backend uses:
-
-```text
-Zod
-  ↓
-Validation
-  ↓
-Service Logic
-  ↓
-AppError / Error Handler
-  ↓
-Consistent API Response
-```
-
-Asynchronous controller operations are also wrapped using reusable async-handler utilities.
-
----
-
-# ⚡ Performance & Production Middleware
-
-The Express application includes:
-
-### Compression
-
-HTTP responses can be compressed before being transferred to clients, reducing response payload size and network overhead.
-
-### Helmet
-
-Adds commonly recommended HTTP security headers.
-
-### CORS
-
-Frontend/backend communication is configured through environment-based CORS settings.
-
-### Logging
-
-Request logging and application logging are supported using:
-
-- Morgan
-- Pino
-
-This provides useful visibility during development and deployment.
-
----
-
-# 📸 Screenshots
-
-The repository contains a dedicated screenshot collection under:
-
-```text
-docs/screenshots/
-```
-
-### Login
-
-![Login](docs/screenshots/01-login.png)
-
-### Citizen Dashboard
-
-![Citizen Dashboard](docs/screenshots/02-citizen-dashboard.png)
-
-### Report an Issue
-
-![Report Issue Form](docs/screenshots/03-report-issue-form.png)
-
-![Report Issue Location](docs/screenshots/03-report-issue-location.png)
-
-### Civic Issues
-
-![Issues List](docs/screenshots/04-issues-list-top.png)
-
-![Issues List](docs/screenshots/04-issues-list-bottom.png)
-
-### Issue Details
-
-![Issue Details](docs/screenshots/05-issue-details-top.png)
-
-![Issue Information](docs/screenshots/05-issue-details-info.png)
-
-![Issue Activity](docs/screenshots/05-issue-details-activity.png)
-
-### Contributions
-
-![Contributions](docs/screenshots/06-contributions.png)
-
-### Profile
-
-![Profile](docs/screenshots/07-profile.png)
-
-### Management Dashboard
-
-![Management Dashboard](docs/screenshots/08-management-dashboard.png)
-
-### Volunteer Workspace
-
-![Volunteer Workspace](docs/screenshots/09-volunteer-workspace.png)
-
----
-
-# 🛠️ Technology Stack
-
-## Frontend
-
-| Technology   | Purpose                        |
-| ------------ | ------------------------------ |
-| React        | UI development                 |
-| TypeScript   | Type-safe frontend development |
-| Vite         | Frontend build tooling         |
-| React Router | Client-side routing            |
-| Tailwind CSS | UI styling                     |
-| Axios        | API communication              |
-
-## Backend
-
-| Technology  | Purpose                       |
-| ----------- | ----------------------------- |
-| Node.js     | Runtime                       |
-| Express     | REST API framework            |
-| TypeScript  | Type-safe backend development |
-| Prisma      | ORM                           |
-| PostgreSQL  | Relational database           |
-| JWT         | Authentication                |
-| bcrypt      | Password hashing              |
-| Zod         | Request validation            |
-| Multer      | Multipart file handling       |
-| Cloudinary  | Image storage                 |
-| Helmet      | HTTP security headers         |
-| CORS        | Cross-origin configuration    |
-| Compression | HTTP response compression     |
-| Morgan      | HTTP request logging          |
-| Pino        | Application logging           |
-
----
-
-# 📁 Project Structure
-
-```text
-CivicLens/
-│
-├── client/
-│   ├── src/
-│   │   ├── components/
-│   │   ├── context/
-│   │   ├── hooks/
-│   │   ├── layouts/
-│   │   ├── pages/
-│   │   ├── routes/
-│   │   ├── services/
-│   │   ├── styles/
-│   │   └── types/
-│   ├── .env.example
-│   ├── package.json
-│   └── vite.config.ts
-│
-├── server/
-│   ├── prisma/
-│   │   ├── migrations/
-│   │   └── schema.prisma
-│   │
-│   ├── src/
-│   │   ├── config/
-│   │   ├── middlewares/
-│   │   ├── modules/
-│   │   ├── shared/
-│   │   ├── app.ts
-│   │   └── server.ts
-│   │
-│   ├── .env.example
-│   └── package.json
-│
-├── docs/
-│   └── screenshots/
-│
-├── .gitignore
-├── package.json
-└── README.md
-```
-
----
-
-# ⚙️ Local Development Setup
-
-## Prerequisites
-
-Install:
-
-- Node.js
-- npm
-- PostgreSQL
-- A Cloudinary account
-
----
-
-## 1. Clone the repository
-
-```bash
-git clone https://github.com/manasvi-patidar/CivicLens.git
-cd CivicLens
-```
-
----
-
-## 2. Install dependencies
-
-From the project root:
-
-```bash
-npm ci
-```
-
-The repository uses npm workspaces for the frontend and backend packages.
-
----
-
-## 3. Configure backend environment variables
-
-Create:
-
-```text
-server/.env
-```
-
-using:
-
-```text
-server/.env.example
-```
-
-Example:
-
-```env
-PORT=5000
-
-DATABASE_URL=your_postgresql_connection_string
-
-JWT_SECRET=your_jwt_secret
-JWT_EXPIRES_IN=7d
-
-CLOUDINARY_CLOUD_NAME=your_cloudinary_cloud_name
-CLOUDINARY_API_KEY=your_cloudinary_api_key
-CLOUDINARY_API_SECRET=your_cloudinary_api_secret
-
-CLIENT_URL=http://localhost:5173
-```
-
-Never commit real credentials or secret values.
-
----
-
-## 4. Configure frontend environment variables
-
-Create:
-
-```text
-client/.env
-```
-
-using:
-
-```text
-client/.env.example
-```
-
-Example:
-
-```env
-VITE_API_URL=http://localhost:5000/api
-```
-
----
-
-## 5. Generate Prisma Client
-
-From the server directory:
-
-```bash
-cd server
-npx prisma generate
-```
-
----
-
-## 6. Apply database migrations
-
-For a local database:
-
-```bash
-npx prisma migrate dev
-```
-
-For an existing production database:
-
-```bash
-npx prisma migrate deploy
-```
-
----
-
-## 7. Start the backend
-
-From:
-
-```text
-server/
-```
-
-run:
-
-```bash
-npm run dev
-```
-
-The API runs on:
-
-```text
-http://localhost:5000
-```
-
-Health check:
-
-```text
-http://localhost:5000/health
-```
-
----
-
-## 8. Start the frontend
-
-Open another terminal:
-
-```bash
-cd client
-npm run dev
-```
-
-The Vite development server will provide the frontend URL.
-
----
-
-# 🧰 Available Scripts
-
-## Root
-
-```bash
-npm ci
-```
-
-Installs workspace dependencies.
-
----
-
-## Client
-
-```bash
-npm run dev
-npm run build
-npm run lint
-npm run preview
-```
-
----
-
-## Server
-
-```bash
-npm run dev
-npm run build
-npm start
-```
-
----
-
-# 🏗️ Production Build Verification
-
-Backend build:
-
-```bash
-cd server
-npm run build
-```
-
-Frontend build:
-
-```bash
-cd client
-npm run build
-```
-
-Production backend:
-
-```bash
-npm start
-```
-
-Before deployment, configure production environment variables and apply database migrations using:
-
-```bash
-npx prisma migrate deploy
-```
-
----
-
-# 🔮 Future Enhancements
-
-The current architecture provides a strong foundation for extending CivicLens further.
-
-Potential future improvements include:
-
-- Interactive map-based issue visualization
-- Geographic clustering and heatmaps
-- Real-time issue updates
-- Push/email notifications
-- Advanced analytics dashboards
-- Authority verification workflows
-- Duplicate issue detection
-- Community verification mechanisms
-- Image-based issue classification
-- AI-assisted issue categorization
-- Predictive civic maintenance insights
-- More advanced moderation and audit capabilities
-
-These are future directions and are **not represented as currently implemented functionality**.
-
----
-
-# 🎯 Engineering Highlights
-
-CivicLens demonstrates several concepts relevant to real-world software engineering:
+CivicLens implements authentication and authorization mechanisms to protect user accounts, APIs, and role-specific operations.
 
 ### Authentication
 
-```text
-JWT + bcrypt + protected routes
-```
+- **JWT-based authentication** for secure user sessions.
+- Passwords are stored using **secure hashing** with bcrypt.
+- Protected API routes require valid authentication credentials.
+- Authentication state is managed on the frontend through the application auth context.
 
 ### Authorization
 
-```text
-RBAC + role-specific workflows
-```
+- **Role-Based Access Control (RBAC)** is implemented for:
+  - `CITIZEN`
+  - `VOLUNTEER`
+  - `AUTHORITY`
+  - `ADMIN`
 
-### Data Management
+- Backend authorization checks ensure restricted operations cannot be performed by unauthorized roles.
+- Frontend protected routes provide role-specific access to application features.
 
-```text
-PostgreSQL + Prisma + migrations
-```
+> 🔐 Security is enforced at the API layer rather than relying solely on frontend restrictions.
 
-### API Design
+## 🔮 Future Enhancements
 
-```text
-Express REST API
-```
+CivicLens provides a foundation that can be extended with additional features and intelligent capabilities.
 
-### Architecture
+Potential future enhancements include:
 
-```text
-Routes → Controllers → Services → Repositories → Prisma
-```
+- 🗺️ **Interactive Issue Map** — Visualize reported civic issues geographically using latitude and longitude data.
+- 🤖 **AI-Based Issue Classification** — Automatically categorize and prioritize issues using machine learning.
+- 📈 **Predictive Analytics** — Identify recurring issue patterns and generate insights from historical civic data.
+- 🔔 **Real-Time Notifications** — Notify users when an assigned issue or reported issue changes status.
+- 📱 **Mobile Application** — Extend CivicLens to Android and iOS platforms.
+- 📊 **Advanced Analytics Dashboard** — Provide deeper insights into issue trends, resolution rates, categories, and locations.
+- 🧠 **Duplicate Issue Detection** — Identify potentially duplicate reports for the same civic problem.
+- 🔍 **Advanced Search & Filtering** — Enable more detailed filtering based on location, category, priority, status, and time.
+- 🌐 **Scalable Cloud Infrastructure** — Further optimize the platform for larger datasets and higher user traffic.
 
-### Validation
+These enhancements can evolve CivicLens from a civic issue management platform into a more intelligent and data-driven civic technology solution.
 
-```text
-Zod schemas
-```
+## ⭐ Project Highlights
 
-### File Handling
+CivicLens was designed as a **functional full-stack application** rather than a basic CRUD demonstration.
 
-```text
-Multer → Cloudinary
-```
+### What Makes the Project Stand Out
 
-### Collaboration
+- 🏗️ **Layered Backend Architecture** — Controllers, services, repositories, middleware, and database access are separated by responsibility.
+- 🔐 **Role-Based System** — Four distinct roles provide different workflows and access levels.
+- 🔄 **Real Issue Lifecycle** — Issues move through a structured reporting, assignment, progress, and resolution workflow.
+- 📊 **Role-Specific Dashboards** — Different users interact with the platform according to their responsibilities.
+- 💬 **Collaboration & Activity History** — Comments and activity records provide context and traceability around issues.
+- ☁️ **Cloud Image Storage** — Issue evidence can be uploaded and stored through Cloudinary.
+- 🗄️ **Relational Data Modeling** — Prisma and PostgreSQL manage interconnected users, issues, comments, assignments, and activities.
+- 🧩 **TypeScript Across the Stack** — Shared use of TypeScript improves type safety and maintainability across frontend and backend.
+- 🛡️ **Backend-Enforced Authorization** — Security does not depend only on frontend UI restrictions; protected operations are validated at the API layer.
+- 🧪 **Incremental Development & Validation** — Features were implemented and tested progressively throughout development.
 
-```text
-Comments + Activity Timeline
-```
+> **CivicLens combines real-world workflow design, role-based access control, relational data modeling, and a layered full-stack architecture in a single application.**
 
-### Workflow Management
+## 👨‍💻 Author
 
-```text
-Issue Status + Priority + Assignment
-```
+**Manasvi**
 
-### User Engagement
-
-```text
-Reputation + Contributions + Activity
-```
-
-### Performance & Security
-
-```text
-Helmet + CORS + Compression + Logging
-```
-
----
-
-# 📌 Project Status
-
-**CivicLens is a functional full-stack application with role-based workflows for citizens, volunteers, authorities, and administrators.**
-
-The implemented application includes:
-
-- Authentication
-- Role-based access control
-- Four user roles
-- Role-specific dashboards
-- Civic issue reporting
-- Issue categorization
-- Issue prioritization
-- Issue lifecycle management
-- Issue assignment
-- Search
-- Filtering
-- Sorting
-- Pagination
-- Image uploads
-- Location data
-- Comments
-- Activity timeline
-- Contributions
-- Reputation
-- Profile management
-- PostgreSQL persistence
-- Prisma migrations
-- API validation
-- Security middleware
-- Centralized error handling
-- Logging
-
----
-
-# 👨‍💻 Author
-
-**Manasvi Patidar**
-
-Full-stack application built with a focus on:
-
-```text
-Software Engineering
-Backend Architecture
-Database Design
-Authentication & Authorization
-Role-Based Systems
-REST APIs
-Full-Stack Development
-```
-
----
-
-## ⭐ If you find CivicLens interesting
-
-CivicLens was built to explore how a civic reporting application can move beyond basic CRUD and implement **real-world workflows, role-based operations, issue ownership, assignment, collaboration, activity tracking, and analytics** in a full-stack system.
+Built with a focus on learning, innovation, and solving real-world problems.
