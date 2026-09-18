@@ -616,4 +616,4 @@ CivicLens was designed as a **functional full-stack application** rather than a 
 
 **Manasvi**
 
-Built with a focus on learning, innovation, and solving real-world problems.
+Designed with a focus on learning, innovation, and real-world impact.
