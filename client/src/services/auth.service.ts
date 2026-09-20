@@ -12,7 +12,10 @@ export const registerUser = async (data: RegisterInput) => {
 };
 
 export const loginUser = async (data: LoginInput) => {
-  const response = await api.post<{ data: LoginResponse }>("/auth/login", data);
+  const response = await api.post<{ data: LoginResponse }>(
+    "/api/auth/login",
+    data,
+  );
 
   localStorage.setItem("token", response.data.data.token);
 
