@@ -7,7 +7,7 @@ import type {
 } from "../types/auth";
 
 export const registerUser = async (data: RegisterInput) => {
-  const response = await api.post<{ data: User }>("/auth/register", data);
+  const response = await api.post<{ data: User }>("/api/auth/register", data);
   return response.data.data;
 };
 
