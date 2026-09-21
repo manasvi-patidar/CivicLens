@@ -7,15 +7,13 @@ import type {
 } from "../types/auth";
 
 export const registerUser = async (data: RegisterInput) => {
-  const response = await api.post<{ data: User }>("/api/auth/register", data);
+  const response = await api.post<{ data: User }>("/auth/register", data);
+
   return response.data.data;
 };
 
 export const loginUser = async (data: LoginInput) => {
-  const response = await api.post<{ data: LoginResponse }>(
-    "/api/auth/login",
-    data,
-  );
+  const response = await api.post<{ data: LoginResponse }>("/auth/login", data);
 
   localStorage.setItem("token", response.data.data.token);
 
