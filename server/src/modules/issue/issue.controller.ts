@@ -92,13 +92,13 @@ export const getIssueById = async (req: Request, res: Response) => {
   }
 };
 
-export const updateIssueStatus = async (req: Request, res: Response) => {
+export const updateIssueStatus = async (req: AuthRequest, res: Response) => {
   try {
     const id = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
 
     const { status } = updateIssueStatusSchema.parse(req.body);
 
-    const issue = await updateIssueStatusService(id, status);
+    const issue = await updateIssueStatusService(id, status, req.user!.id);
 
     return res.status(200).json({
       success: true,

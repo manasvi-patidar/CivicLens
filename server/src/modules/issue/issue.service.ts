@@ -74,6 +74,7 @@ export const getIssueByIdService = async (id: string) => {
 export const updateIssueStatusService = async (
   id: string,
   status: "OPEN" | "IN_PROGRESS" | "RESOLVED" | "REJECTED",
+  userId: string,
 ) => {
   const issue = await getIssueById(id);
 
@@ -93,7 +94,7 @@ export const updateIssueStatusService = async (
     },
     user: {
       connect: {
-        id: issue.createdById,
+        id: userId,
       },
     },
   });
