@@ -102,7 +102,11 @@ export const updateIssueStatusService = async (
   return updatedIssue;
 };
 
-export const assignIssueService = async (issueId: string, userId: string) => {
+export const assignIssueService = async (
+  issueId: string,
+  userId: string, //person being assigned
+  actorId: string, //logged-in admin/authority performing the assignment
+) => {
   const issue = await getIssueById(issueId);
 
   if (!issue) {
@@ -135,7 +139,7 @@ export const assignIssueService = async (issueId: string, userId: string) => {
     },
     user: {
       connect: {
-        id: userId,
+        id: actorId,
       },
     },
   });

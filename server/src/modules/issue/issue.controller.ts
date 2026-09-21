@@ -121,7 +121,7 @@ export const assignIssueController = asyncHandler(
 
     const { userId } = req.body;
 
-    const issue = await assignIssueService(issueId, userId);
+    const issue = await assignIssueService(issueId, userId, req.user!.id);
 
     return res.status(200).json({
       success: true,
