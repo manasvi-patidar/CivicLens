@@ -25,46 +25,60 @@ export const getAllIssues = async (
   search?: string,
   sort: "asc" | "desc" = "desc",
 ) => {
-  return prisma.issue.findMany({
-    where: {
-      ...(status && { status: status as any }),
-      ...(category && { category: category as any }),
-      ...(search && {
-        title: {
-          contains: search,
-          mode: "insensitive",
-        },
-      }),
-    },
+  const where = {
+    ...(status && { status: status as any }),
+    ...(category && { category: category as any }),
+    ...(search && {
+      title: {
+        contains: search,
+        mode: "insensitive" as const,
+      },
+    }),
+  };
 
-    include: {
-      createdBy: {
-        select: {
-          id: true,
-          name: true,
-          email: true,
-          role: true,
+  const [issues, total] = await Promise.all([
+    prisma.issue.findMany({
+      //findMany() → current page whereas count() → total matching records
+      where,
+
+      include: {
+        createdBy: {
+          select: {
+            id: true,
+            name: true,
+            email: true,
+            role: true,
+          },
+        },
+
+        assignedTo: {
+          select: {
+            id: true,
+            name: true,
+            email: true,
+            role: true,
+          },
         },
       },
 
-      assignedTo: {
-        select: {
-          id: true,
-          name: true,
-          email: true,
-          role: true,
-        },
+      orderBy: {
+        createdAt: sort,
       },
-    },
 
-    orderBy: {
-      createdAt: sort,
-    },
+      skip: (page - 1) * limit,
 
-    skip: (page - 1) * limit,
+      take: limit,
+    }),
 
-    take: limit,
-  });
+    prisma.issue.count({
+      where,
+    }),
+  ]);
+
+  return {
+    issues,
+    total,
+  };
 };
 
 export const getIssueById = async (id: string) => {

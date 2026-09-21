@@ -50,7 +50,7 @@ export const getAllIssues = async (req: Request, res: Response) => {
 
     const sort = req.query.sort === "asc" ? "asc" : "desc";
 
-    const issues = await getAllIssuesService(
+    const { issues, total } = await getAllIssuesService(
       page,
       limit,
       status,
@@ -63,7 +63,7 @@ export const getAllIssues = async (req: Request, res: Response) => {
       success: true,
       page,
       limit,
-      count: issues.length,
+      count: total,
       data: issues,
     });
   } catch (error: any) {
