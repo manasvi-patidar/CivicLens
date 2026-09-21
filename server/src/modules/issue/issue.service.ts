@@ -178,6 +178,7 @@ export const deleteIssueService = async (
 export const updateIssueService = async (
   issueId: string,
   userId: string,
+  userRole: string,
   data: {
     title?: string;
     description?: string;
@@ -202,12 +203,14 @@ export const updateIssueService = async (
     throw new Error("Issue not found");
   }
 
-  if (issue.createdById !== userId) {
-    throw new Error("You can only edit your own issues");
-  }
+  if (userRole !== "ADMIN") {
+    if (issue.createdById !== userId) {
+      throw new Error("You can only edit your own issues");
+    }
 
-  if (issue.status !== "OPEN") {
-    throw new Error("Only open issues can be edited");
+    if (issue.status !== "OPEN") {
+      throw new Error("Only open issues can be edited");
+    }
   }
 
   const updatedIssue = await updateIssue(issueId, data);

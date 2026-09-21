@@ -159,6 +159,7 @@ export const updateIssueController = asyncHandler(
     const updatedIssue = await updateIssueService(
       id,
       req.user!.id,
+      req.user!.role,
       validatedData,
     );
 
