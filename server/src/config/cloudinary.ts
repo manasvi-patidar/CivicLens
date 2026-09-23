@@ -4,6 +4,7 @@ cloudinary.config({
   cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
   api_key: process.env.CLOUDINARY_API_KEY,
   api_secret: process.env.CLOUDINARY_API_SECRET,
+  signature_algorithm: "sha256",
 });
 
 console.log("Cloudinary runtime config:", {
@@ -11,15 +12,5 @@ console.log("Cloudinary runtime config:", {
   api_key_last4: process.env.CLOUDINARY_API_KEY?.slice(-4),
   api_secret_length: process.env.CLOUDINARY_API_SECRET?.length,
 });
-
-const testSignature = cloudinary.utils.api_sign_request(
-  {
-    folder: "CivicLens/issues",
-    timestamp: Math.floor(Date.now() / 1000),
-  },
-  process.env.CLOUDINARY_API_SECRET!,
-);
-
-console.log("CLOUDINARY SIGNATURE TEST:", testSignature);
 
 export default cloudinary;
