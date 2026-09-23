@@ -7,7 +7,6 @@ const storage = new CloudinaryStorage({
   params: async (_req, file) => ({
     folder: "CivicLens/issues",
     allowed_formats: ["jpg", "jpeg", "png", "webp"],
-    public_id: `${Date.now()}-${file.originalname.split(".")[0]}`,
   }),
 });
 
