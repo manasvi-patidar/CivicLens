@@ -34,6 +34,11 @@ router.patch(
 
 router.patch("/:id/assign", protect, authorize("ADMIN"), assignIssueController);
 
-router.delete("/:id", protect, authorize("ADMIN"), deleteIssueController);
+router.delete(
+  "/:id",
+  protect,
+  authorize("ADMIN", "CITIZEN"),
+  deleteIssueController,
+);
 
 export default router;
