@@ -20,10 +20,10 @@ export const useDashboardIssues = ({
       try {
         setError("");
 
-        const response =
-          isManagementUser || isVolunteer
-            ? await getIssues({ page: 1, limit: 1000 })
-            : await getIssues();
+        const response = await getIssues({
+          page: 1,
+          limit: 1000,
+        });
 
         setIssues(response.data);
       } catch {
