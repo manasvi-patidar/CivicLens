@@ -26,9 +26,9 @@ Built with **React, TypeScript, Vite, and Tailwind CSS**, it provides role-based
 - 📝 Report civic issues with category, priority, location, address, and image evidence
 - 📍 Use the browser's current location while reporting an issue
 - 🔎 Browse, search, filter, and paginate reported issues
-- 👥 Role-specific dashboards for Citizens, Volunteers, Authorities, and Admins
+- 👥 Role-aware dashboards for Citizens, Volunteers, Authorities, and Admins
 - 🔄 Track issue lifecycle — **Open → In Progress → Resolved/Rejected**
-- 👮 Assign issues to Volunteers or Authorities
+- 👮 Administrators can assign issues to Volunteers or Authorities
 - ✏️ Edit and delete issues based on user permissions
 - 💬 Add, edit, and delete issue comments
 - 📜 View issue activity timelines and status history
@@ -53,26 +53,29 @@ Built with **React, TypeScript, Vite, and Tailwind CSS**, it provides role-based
 client/
 ├── public/
 ├── src/
-│   ├── components/       # 🧩 Reusable UI components
-│   │   ├── common/
-│   │   ├── issue/
-│   │   └── layout/
+│   ├── components/                  # 🧩 Shared UI components
+│   │   └── layout/                  # Navbar & Sidebar
 │   │
-│   ├── context/          # 🔐 Authentication & shared state
-│   ├── hooks/            # 🪝 Custom React hooks
-│   ├── layouts/          # 🖥️ Application layouts
+│   ├── context/                     # 🔐 Authentication context
+│   ├── hooks/                       # 🪝 Custom React hooks
+│   ├── layouts/                     # 🖥️ Application layouts
 │   │
-│   ├── pages/             # 📄 Application pages
-│   │   ├── auth/          # Login & registration
-│   │   ├── contributions/ # User contributions
-│   │   ├── dashboard/     # Role-based dashboards
-│   │   ├── issues/        # Issue creation, editing & details
-│   │   └── profile/       # User profile
+│   ├── pages/                       # 📄 Application pages
+│   │   ├── auth/                    # Login & registration
+│   │   ├── contributions/           # User contribution statistics
+│   │   ├── dashboard/               # Role-aware dashboard
+│   │   │   ├── components/
+│   │   │   ├── hooks/
+│   │   │   └── utils/
+│   │   ├── issues/                  # Issue creation, editing & details
+│   │   │   ├── components/
+│   │   │   └── utils/
+│   │   └── profile/                 # User profile
 │   │
-│   ├── routes/            # 🧭 Routing & protected routes
-│   ├── services/          # 🌐 API service modules
-│   ├── styles/            # 🎨 Shared styling
-│   └── types/             # 🔷 TypeScript type definitions
+│   ├── routes/                      # 🧭 Application & protected routes
+│   ├── services/                    # 🌐 API service modules
+│   ├── styles/                      # 🎨 Shared styling
+│   └── types/                       # 🔷 TypeScript type definitions
 │
 ├── .env.example
 ├── eslint.config.js
@@ -129,19 +132,19 @@ CivicLens uses **JWT-based authentication** with protected routes and role-based
 
 ### 👥 User Roles
 
-| Role             | Access                                                                    |
-| ---------------- | ------------------------------------------------------------------------- |
-| 👤 **Citizen**   | Report issues, track personal issues, comment, and manage contributions   |
-| 🤝 **Volunteer** | Access assigned issues and participate in issue management                |
-| 🏛️ **Authority** | Manage civic issues, update statuses, and handle assignments              |
-| 🛡️ **Admin**     | Administrative access with broader issue and user management capabilities |
+| Role             | Access                                                                                                 |
+| ---------------- | ------------------------------------------------------------------------------------------------------ |
+| 👤 **Citizen**   | Report issues, view and manage permitted personal issues, comment, and view contributions              |
+| 🤝 **Volunteer** | View issues assigned to them and participate through issue information, comments, and activity history |
+| 🏛️ **Authority** | View and manage civic issues and update issue statuses                                                 |
+| 🛡️ **Admin**     | Perform administrative issue management, assign issues, and access broader management capabilities     |
 
 ### 🔒 Authentication Features
 
 - 🔑 Secure login and registration flow
 - 🎫 JWT-based authenticated sessions
 - 🛣️ Protected routes for authenticated users
-- 👥 Role-based route and UI access
+- 👥 Role-aware UI and permission-based issue actions
 - 🚪 Logout functionality
 - 🧠 Authentication state managed through React Context
 
@@ -155,7 +158,7 @@ CivicLens provides a complete frontend workflow for reporting and managing civic
 - 📋 Browse reported issues with **search, filtering, and pagination**
 - 🔎 View detailed information for individual issues
 - 🔄 Track issue status through **Open → In Progress → Resolved/Rejected**
-- 👮 Assign issues to available users based on role and permissions
+- 👮 Administrators can assign issues to available Volunteers or Authorities
 - ✏️ Edit or delete issues according to user permissions
 - 📊 View issue-related statistics through role-specific dashboards
 
@@ -170,15 +173,15 @@ CivicLens supports collaboration and transparency through issue discussions and 
 - 🔄 Track important issue events such as **creation, status updates, comments, and assignments**
 - 👤 Display user information associated with comments and activities
 
-## 📊 Role-Based Dashboards
+## 📊 Role-Aware Dashboards
 
-CivicLens provides dedicated dashboards tailored to each user role.
+CivicLens uses a shared dashboard route that renders different dashboard views and workflows according to the authenticated user's role.
 
-- 👤 **Citizen Dashboard** — View reported issues, track their status, and monitor personal contributions
-- 🤝 **Volunteer Dashboard** — View and manage issues assigned to the volunteer
-- 🏛️ **Authority Dashboard** — Monitor civic issues, manage their status, and handle assignments
-- 🛡️ **Admin Dashboard** — Manage the broader issue workflow and access administrative functionality
-- 📈 Role-specific statistics and issue summaries provide a quick overview of relevant activity
+- 👤 **Citizen Dashboard** — View personally reported issues, track their status, and monitor personal contribution information
+- 🤝 **Volunteer Dashboard** — View issues assigned to the volunteer and review their current status
+- 🏛️ **Authority Dashboard** — Monitor civic issues and update their statuses
+- 🛡️ **Admin Dashboard** — Manage the broader issue workflow, view issue statistics, and perform administrative issue operations
+- 📈 Role-specific statistics, issue lists, filters, and assigned-issue views provide relevant information for each role
 
 ## 👤 Profile & Contributions
 
@@ -203,16 +206,16 @@ Run these commands from the `client` directory:
 
 ## ✨ Frontend Highlights
 
-- 🧩 **Component-based architecture** with reusable layout, issue, dashboard, and common UI components
-- 🧭 **Protected routing** with dedicated routes for authentication, dashboards, issues, profiles, and contributions
-- 🔐 **Role-aware rendering** that controls issue actions such as status updates and assignments based on user roles
+- 🧩 **Component-based architecture** with reusable layout components and feature-specific components organized within dashboard and issue pages
+- 🧭 **Protected routing** for authenticated application pages, including dashboard, issues, profile, and contributions, with public login and registration routes
+- 🔐 **Role-aware rendering** that provides different dashboard views and controls issue actions such as status updates and assignments according to the authenticated user's permissions
 - 📍 **Browser geolocation integration** to capture latitude and longitude while creating an issue, with manual coordinate fallback
 - 📷 **Multipart issue submission** supporting image evidence alongside issue details
-- 🔎 **Client-side issue controls** with search, status/category filters, pagination, and filter reset
+- 🔎 **Issue browsing controls** with search, status/category filters, server-backed pagination, and filter reset
 - 🔄 **Interactive issue workflow** for editing, status updates, assignments, and permission-based actions
 - 💬 **Interactive comments** with create, edit, delete, loading, error, and confirmation states
 - 📜 **Activity timeline** for displaying issue history and user actions
-- 📊 **Role-specific dashboard logic** for personal reports, assigned issues, management issues, filters, and statistics
+- 📊 **Role-aware dashboard logic** for personal reports, assigned issues, management issue lists, filters, and role-specific statistics
 - 🧠 **Centralized API service layer** using Axios with dedicated services for authentication, issues, comments, activities, and contributions
 - 📱 **Responsive Tailwind-based UI** with shared layouts, Navbar, Sidebar, cards, forms, and dashboard components
 
