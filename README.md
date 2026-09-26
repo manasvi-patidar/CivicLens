@@ -2,11 +2,11 @@
 
 ### A Full-Stack Civic Issue Reporting & Management Platform
 
-CivicLens is a full-stack web application designed to streamline the reporting, tracking, management, and resolution of civic issues.
+CivicLens is a full-stack web application designed to streamline the reporting, tracking, management, and monitoring of civic issues.
 
-The platform connects **citizens, volunteers, authorities, and administrators** through a centralized system where civic issues can be reported, categorized, prioritized, assigned, tracked, and resolved through a structured workflow.
+The platform connects **citizens, volunteers, authorities, and administrators** through a centralized system where civic issues can be reported, categorized, prioritized, assigned by authorized administrators, tracked through different statuses, discussed through comments, and monitored through an activity history.
 
-Built with a modern **TypeScript-based full-stack architecture**, CivicLens combines a responsive React frontend, a structured Express backend, Prisma ORM, and PostgreSQL to provide a scalable foundation for digital civic issue management.
+Built with a modern **TypeScript-based full-stack architecture**, CivicLens combines a responsive React frontend, a structured Express backend, Prisma ORM, and PostgreSQL for civic issue management.
 
 > **CivicLens — Report. Track. Collaborate. Resolve.**
 
@@ -31,7 +31,7 @@ Built with a modern **TypeScript-based full-stack architecture**, CivicLens comb
 
 ## 📸 Application Preview
 
-CivicLens provides dedicated interfaces for different user roles and supports the complete civic issue lifecycle — from reporting an issue to tracking its progress and resolution.
+CivicLens provides role-aware interfaces for different user roles and supports the civic issue workflow from reporting an issue through status tracking, collaboration, and resolution.
 
 ### 🔐 Authentication
 
@@ -97,10 +97,10 @@ The application allows citizens to report issues with relevant information such 
 
 The platform is built around four distinct user roles:
 
-- 👤 **Citizens** — Report civic issues and monitor their progress.
-- 🤝 **Volunteers** — Work on issues assigned to them and contribute to the resolution process.
-- 🏛️ **Authorities** — Manage reported issues, assign work, update statuses, and oversee civic issue resolution.
-- 🛡️ **Administrators** — Perform administrative operations and manage the platform at a higher level.
+- 👤 **Citizens** — Report civic issues, monitor their progress, and participate through comments.
+- 🤝 **Volunteers** — Access issues assigned to them and participate through issue information, comments, and activity history.
+- 🏛️ **Authorities** — Review and manage issues, update issue statuses, and participate in the issue workflow.
+- 🛡️ **Administrators** — Perform administrative operations, manage users, assign issues, and perform higher-level issue management.
 
 ### 🔄 Centralized Issue Lifecycle
 
@@ -121,11 +121,11 @@ CivicLens brings together:
 - Issue reporting
 - Issue categorization and prioritization
 - Image-based issue documentation
-- Issue assignment
+- Administrator-controlled issue assignment
 - Status management
 - User collaboration through comments
 - Activity tracking
-- Role-specific dashboards
+- Role-aware dashboards
 - User and contribution management
 
 This creates a single system where civic issues can be **reported, organized, assigned, monitored, and managed throughout their lifecycle**.
@@ -146,14 +146,17 @@ This creates a single system where civic issues can be **reported, organized, as
 
 ### 👥 Multi-Role Collaboration
 
-- Authorities can manage issues and assign them to appropriate users.
-- Volunteers can access and work with their assigned issues.
-- Citizens can monitor the issues they have reported.
+### 👥 Multi-Role Collaboration
 
-### 📊 Role-Specific Dashboards
+- Administrators can assign issues to Volunteers or Authorities.
+- Volunteers can access issues assigned to them and participate through issue information, comments, and activity history.
+- Authorities can manage issues and update their statuses.
+- Citizens can monitor the issues they have reported and participate through comments.
 
-- Dedicated dashboards tailored to different user roles.
-- Relevant issue statistics, activities, and workflows based on permissions.
+### 📊 Role-Aware Dashboards
+
+- Dashboard views adapt to the authenticated user's role.
+- Different roles are provided with relevant issue information, statistics, activities, and workflows according to their permissions.
 
 ### 💬 Comments & Activity Tracking
 
@@ -175,12 +178,12 @@ This creates a single system where civic issues can be **reported, organized, as
 
 CivicLens uses **Role-Based Access Control (RBAC)** to provide different capabilities and workflows to different types of users.
 
-| Role             | Core Responsibilities                                                                                     |
-| ---------------- | --------------------------------------------------------------------------------------------------------- |
-| 👤 **Citizen**   | Report civic issues, view reported issues, track progress, and participate through comments.              |
-| 🤝 **Volunteer** | Access assigned issues, contribute to issue resolution, and update relevant issue information.            |
-| 🏛️ **Authority** | Review and manage issues, assign issues, update priorities/statuses, and oversee the resolution workflow. |
-| 🛡️ **Admin**     | Perform platform-level administrative operations and manage users and system activity.                    |
+| Role             | Core Responsibilities                                                                                  |
+| ---------------- | ------------------------------------------------------------------------------------------------------ |
+| 👤 **Citizen**   | Report civic issues, view reported issues, track progress, and participate through comments.           |
+| 🤝 **Volunteer** | Access issues assigned to them and participate through issue information, comments, and activity data. |
+| 🏛️ **Authority** | Review and manage issues, update issue statuses, and participate in the resolution workflow.           |
+| 🛡️ **Admin**     | Perform administrative operations, manage users, assign issues, and manage civic issues.               |
 
 ### 🔒 Access Control
 
@@ -224,7 +227,7 @@ CivicLens follows a structured workflow for managing civic issues from initial r
 
 1. **Report** — A citizen submits a civic issue with relevant details and supporting information.
 2. **Open** — The newly reported issue enters the system as an open issue.
-3. **Assignment & Work** — Authorized users can manage and assign issues, after which the issue can move into progress.
+3. **Assignment & Work** — Administrators can assign issues to Volunteers or Authorities, after which authorized users can manage the issue and update its status.
 4. **Resolution** — Once addressed, the issue can be marked as resolved.
 5. **Rejection** — Issues that do not qualify or cannot be processed can follow the rejection path.
 6. **Activity History** — Important changes throughout the issue lifecycle are recorded in the activity timeline.
@@ -320,7 +323,7 @@ CivicLens follows a layered full-stack architecture that separates the presentat
                          │                          │
                          │ Users • Issues           │
                          │ Comments • Activities    │
-                         │ Assignments • Relations  │
+                         │ Relations                │
                          └──────────────────────────┘
 
              ┌────────────────────┐
@@ -376,52 +379,66 @@ CivicLens is organized as a separate frontend and backend application, allowing 
 ```text
 CivicLens/
 │
-├── client/                         # React frontend
-│   ├── public/                    # Static frontend assets
+├── client/                              # React frontend
+│   ├── public/                          # Static assets
 │   ├── src/
-│   │   ├── components/            # Reusable UI components
-│   │   ├── pages/                 # Application pages
-│   │   ├── services/              # API communication
-│   │   ├── context/               # Global application context
-│   │   ├── routes/                # Route configuration
-│   │   ├── types/                 # TypeScript types
-│   │   └── ...
+│   │   ├── components/                  # Reusable UI components
+│   │   │   └── layout/
+│   │   ├── context/                     # Authentication/application context
+│   │   ├── hooks/                       # Custom React hooks
+│   │   ├── layouts/                     # Application layouts
+│   │   ├── pages/                       # Application pages
+│   │   │   ├── auth/
+│   │   │   ├── contributions/
+│   │   │   ├── dashboard/
+│   │   │   ├── issues/
+│   │   │   └── profile/
+│   │   ├── routes/                      # Frontend route configuration
+│   │   ├── services/                    # API communication
+│   │   ├── styles/                      # Application styles
+│   │   └── types/                       # TypeScript types
 │   ├── package.json
 │   └── README.md
 │
-├── server/                         # Express backend
+├── server/                              # Express backend
 │   ├── src/
-│   │   ├── controllers/            # Request handling
-│   │   ├── services/               # Business logic
-│   │   ├── repositories/            # Data-access layer
-│   │   ├── middleware/              # Auth, validation & middleware
-│   │   ├── routes/                  # API route definitions
-│   │   ├── validators/              # Request validation
-│   │   ├── config/                  # Application configuration
-│   │   └── ...
+│   │   ├── config/                      # Application configuration
+│   │   ├── middlewares/                 # Authentication, authorization, validation, etc.
+│   │   ├── modules/                     # Feature-based backend modules
+│   │   │   ├── auth/
+│   │   │   ├── users/
+│   │   │   ├── issue/
+│   │   │   ├── comment/
+│   │   │   ├── activity/
+│   │   │   └── contribution/
+│   │   └── shared/                      # Shared errors, logging, and utilities
+│   │       ├── errors/
+│   │       ├── logger/
+│   │       └── utils/
 │   ├── prisma/
-│   │   └── schema.prisma            # Database schema
+│   │   ├── migrations/                  # Prisma database migrations
+│   │   └── schema.prisma                # Database schema
 │   ├── package.json
 │   └── README.md
 │
 ├── docs/
-│   └── screenshots/                 # Project screenshots
+│   └── screenshots/                     # Project screenshots
 │
-└── README.md                        # Project documentation
+└── README.md                            # Project documentation
 ```
 
 ### 📦 Application Layers
 
-| Layer            | Responsibility                                                           |
-| ---------------- | ------------------------------------------------------------------------ |
-| **Client**       | User interface, routing, state/context management, and API communication |
-| **Routes**       | Define and organize API endpoints                                        |
-| **Middleware**   | Authentication, authorization, validation, and request processing        |
-| **Controllers**  | Handle incoming requests and API responses                               |
-| **Services**     | Implement application and business logic                                 |
-| **Repositories** | Encapsulate database access                                              |
-| **Prisma**       | Type-safe ORM and database interaction                                   |
-| **PostgreSQL**   | Persistent application data                                              |
+| Layer / Component | Responsibility                                                           |
+| ----------------- | ------------------------------------------------------------------------ |
+| **Client**        | User interface, routing, state/context management, and API communication |
+| **Routes**        | Define and organize API endpoints within backend feature modules         |
+| **Middleware**    | Authentication, authorization, validation, and request processing        |
+| **Controllers**   | Handle incoming requests and API responses                               |
+| **Services**      | Implement application and business logic                                 |
+| **Repositories**  | Encapsulate database access                                              |
+| **Prisma**        | Type-safe ORM and database interaction                                   |
+| **PostgreSQL**    | Persistent application data                                              |
 
 The separation of concerns keeps the codebase modular and makes individual layers easier to maintain and extend.
 
@@ -474,14 +491,13 @@ http://localhost:5000/api
 
 ### Core API Modules
 
-| Module             | Purpose                                               |
-| ------------------ | ----------------------------------------------------- |
-| **Authentication** | User registration, login, and authentication          |
-| **Users**          | User profiles, roles, and user management             |
-| **Issues**         | Create, view, update, assign, and manage civic issues |
-| **Comments**       | Add and manage issue-related discussions              |
-| **Activities**     | Track important actions and status changes            |
-| **Assignments**    | Assign issues to volunteers or responsible users      |
+| Module             | Purpose                                                  |
+| ------------------ | -------------------------------------------------------- |
+| **Authentication** | User registration, login, and authentication             |
+| **Users**          | User profiles, roles, and administrative user management |
+| **Issues**         | Create, view, update, assign, and manage civic issues    |
+| **Comments**       | Add and manage issue-related discussions                 |
+| **Activities**     | Track important issue actions and status changes         |
 
 ### Request Flow
 
@@ -523,23 +539,25 @@ CivicLens uses **PostgreSQL** as its relational database with **Prisma ORM** for
 │    Issue     │  │   Comment    │
 └──────┬───────┘  └──────────────┘
        │
-       ├───────────────┐
-       │               │
-       ▼               ▼
-┌──────────────┐  ┌──────────────┐
-│  Assignment  │  │   Activity   │
-└──────────────┘  └──────────────┘
+       │
+       ▼
+┌──────────────┐
+│   Activity   │
+└──────────────┘
+
+Issue
+  │
+  └── assignedToId ──► User
 ```
 
 ### Main Models
 
-| Model             | Purpose                                                     |
-| ----------------- | ----------------------------------------------------------- |
-| **User**          | Stores user accounts, roles, and profile information        |
-| **Issue**         | Stores reported civic issues and their current state        |
-| **Comment**       | Stores discussions associated with issues                   |
-| **Activity**      | Maintains a chronological record of important issue actions |
-| **IssueAssignee** | Represents issue assignment relationships                   |
+| Model        | Purpose                                                     |
+| ------------ | ----------------------------------------------------------- |
+| **User**     | Stores user accounts, roles, and profile information        |
+| **Issue**    | Stores reported civic issues, assignment, and current state |
+| **Comment**  | Stores discussions associated with issues                   |
+| **Activity** | Maintains a chronological record of important issue actions |
 
 ### Issue Classification
 
@@ -605,7 +623,7 @@ CivicLens was designed as a **functional full-stack application** rather than a 
 - 📊 **Role-Specific Dashboards** — Different users interact with the platform according to their responsibilities.
 - 💬 **Collaboration & Activity History** — Comments and activity records provide context and traceability around issues.
 - ☁️ **Cloud Image Storage** — Issue evidence can be uploaded and stored through Cloudinary.
-- 🗄️ **Relational Data Modeling** — Prisma and PostgreSQL manage interconnected users, issues, comments, assignments, and activities.
+- 🗄️ **Relational Data Modeling** — Prisma and PostgreSQL manage interconnected users, issues, comments, activities, and issue-assignment relationships.
 - 🧩 **TypeScript Across the Stack** — Shared use of TypeScript improves type safety and maintainability across frontend and backend.
 - 🛡️ **Backend-Enforced Authorization** — Security does not depend only on frontend UI restrictions; protected operations are validated at the API layer.
 - 🧪 **Incremental Development & Validation** — Features were implemented and tested progressively throughout development.
