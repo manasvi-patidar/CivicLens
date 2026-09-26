@@ -146,8 +146,6 @@ This creates a single system where civic issues can be **reported, organized, as
 
 ### 👥 Multi-Role Collaboration
 
-### 👥 Multi-Role Collaboration
-
 - Administrators can assign issues to Volunteers or Authorities.
 - Volunteers can access issues assigned to them and participate through issue information, comments, and activity history.
 - Authorities can manage issues and update their statuses.
