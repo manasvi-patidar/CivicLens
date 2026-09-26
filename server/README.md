@@ -7,7 +7,7 @@ The **CivicLens Backend** is a RESTful API built with **Node.js, Express, TypeSc
 - 🔐 **Authentication & Authorization** — JWT-based authentication with role-based access control.
 - 🏙️ **Civic Issue Management** — Create, view, update, delete, filter, and manage reported civic issues.
 - 👥 **Role Management** — Supports `CITIZEN`, `VOLUNTEER`, `AUTHORITY`, and `ADMIN` roles.
-- 📌 **Issue Assignment** — Authorities/Admins can assign issues to available users.
+- 📌 **Issue Assignment** — Administrators can assign issues to available Volunteers or Authorities.
 - 💬 **Comments & Activity Tracking** — Supports issue discussions and maintains an activity timeline.
 - 🖼️ **Image Evidence** — Handles issue image uploads using Cloudinary.
 - 📍 **Location Data** — Stores issue addresses and geographic coordinates.
@@ -40,27 +40,27 @@ The backend follows a **modular layered architecture** separating routes, contro
 ```text
 server/
 ├── src/
-│   ├── config/                 # ⚙️ Database and application configuration
-│   ├── middleware/             # 🛡️ Authentication, validation, error handling & uploads
+│   ├── config/                         # ⚙️ Database and application configuration
+│   ├── middlewares/                    # 🛡️ Authentication, authorization & uploads
 │   ├── modules/
-│   │   ├── auth/               # 🔐 Registration, login & authentication
-│   │   ├── users/              # 👥 User profiles, roles & user management
-│   │   ├── issue/              # 🏙️ Civic issue creation & management
-│   │   ├── comment/             # 💬 Issue comments and discussions
-│   │   ├── activity/            # 📝 Issue activity & status timeline
-│   │   └── contribution/        # 📊 User contribution tracking
-│   ├── routes/                  # 🔌 API route definitions
-│   ├── utils/                   # 🔧 Shared utility functions
-│   ├── app.ts                   # 🚀 Express application configuration
-│   └── server.ts                # ▶️ Server entry point
+│   │   ├── auth/                       # 🔐 Registration, login & authentication
+│   │   ├── users/                      # 👥 User profiles, roles & user management
+│   │   ├── issue/                      # 🏙️ Civic issue creation & management
+│   │   ├── comment/                    # 💬 Issue comments and discussions
+│   │   ├── activity/                   # 📝 Issue activity & status timeline
+│   │   └── contribution/               # 📊 User contribution tracking
+│   └── shared/
+│       ├── errors/                     # 🚨 Application errors & error handling
+│       ├── logger/                     # 📜 Application logger
+│       └── utils/                      # 🔧 Shared utilities
 │
 ├── prisma/
-│   └── schema.prisma            # 🗄️ Database schema & relationships
+│   ├── migrations/                     # 🗄️ Database migrations
+│   └── schema.prisma                   # 🗄️ Database schema & relationships
 │
-├── uploads/                     # 🖼️ Local upload handling
-├── package.json                 # 📦 Dependencies & scripts
-├── tsconfig.json                # ⚙️ TypeScript configuration
-└── .env                         # 🔑 Environment variables
+├── package.json                        # 📦 Dependencies & scripts
+├── tsconfig.json                       # ⚙️ TypeScript configuration
+└── .env                                # 🔑 Environment variables
 ```
 
 ### 🧩 Backend Architecture
@@ -99,7 +99,7 @@ This layered architecture keeps **API handling, business logic, and database ope
 
 - Create and report civic issues
 - View issue details and issue listings
-- Edit and delete issues
+- Edit and delete issues according to role and issue ownership/status permissions
 - Search and filter issues
 - Issue categories and priority levels
 - Issue status management: `OPEN`, `IN_PROGRESS`, `RESOLVED`, `REJECTED`
@@ -112,14 +112,15 @@ This layered architecture keeps **API handling, business logic, and database ope
 
 ### 👥 Issue Assignment
 
-- Assign reported issues to users
-- Support authority/admin assignment workflows
-- Track assigned users for issues
+- Administrators can assign reported issues to users with the `VOLUNTEER` or `AUTHORITY` role.
+- Assignment is restricted to administrators.
+- Assigned-user information is stored through the Issue → User relationship.
+- Assignment actions are recorded in the issue activity timeline.
 
 ### 💬 Comments & Activity
 
 - Add comments to reported issues
-- Maintain issue activity history
+- Maintain an issue activity history for issue creation, status changes, comments, and assignments.
 - Track important actions such as issue creation, status changes, and comments
 
 ### 📊 User Contributions
@@ -160,12 +161,12 @@ Protected Resource
 
 ### 👥 User Roles
 
-| Role             | Responsibility                                                           |
-| ---------------- | ------------------------------------------------------------------------ |
-| **CITIZEN** 🧑‍💻   | Report civic issues, manage own issues, comment, and track contributions |
-| **VOLUNTEER** 🤝 | Participate in issue management and handle assigned civic issues         |
-| **AUTHORITY** 🏛️ | Manage civic issues, update statuses, and assign issues                  |
-| **ADMIN** 👑     | Administrative user management and broader issue-management operations   |
+| Role             | Responsibility                                                                                           |
+| ---------------- | -------------------------------------------------------------------------------------------------------- |
+| **CITIZEN** 🧑‍💻   | Report civic issues, manage their own issues while permitted, comment, and view contribution information |
+| **VOLUNTEER** 🤝 | View issues assigned to them and participate through issue information, comments, and activity history   |
+| **AUTHORITY** 🏛️ | Manage civic issues and update issue statuses                                                            |
+| **ADMIN** 👑     | Perform administrative user management, assign issues, and perform broader issue-management operations   |
 
 ### 🛡️ Protected APIs
 
@@ -175,35 +176,35 @@ Authenticated routes require a valid JWT token. Role-based middleware restricts 
 
 CivicLens exposes RESTful APIs under the `/api` base path.
 
-| Module           | Method   | Endpoint                     | Access            |
-| ---------------- | -------- | ---------------------------- | ----------------- |
-| 🔐 Auth          | `POST`   | `/api/auth/register`         | Public            |
-|                  | `POST`   | `/api/auth/login`            | Public            |
-|                  | `GET`    | `/api/auth/me`               | Authenticated     |
-|                  | `PATCH`  | `/api/auth/me`               | Authenticated     |
-| 🏙️ Issues        | `GET`    | `/api/issues`                | Public            |
-|                  | `POST`   | `/api/issues`                | Authenticated     |
-|                  | `GET`    | `/api/issues/:id`            | Public            |
-|                  | `PATCH`  | `/api/issues/:id`            | Authenticated     |
-|                  | `PATCH`  | `/api/issues/:id/status`     | Admin / Authority |
-|                  | `PATCH`  | `/api/issues/:id/assign`     | Admin             |
-|                  | `DELETE` | `/api/issues/:id`            | Admin             |
-| 💬 Comments      | `POST`   | `/api/issues/:id/comments`   | Authenticated     |
-|                  | `GET`    | `/api/issues/:id/comments`   | Public            |
-|                  | `PATCH`  | `/api/comments/:id`          | Authenticated     |
-|                  | `DELETE` | `/api/comments/:id`          | Authenticated     |
-| 📝 Activities    | `GET`    | `/api/issues/:id/activities` | Authenticated     |
-| 🤝 Contributions | `GET`    | `/api/contributions/me`      | Authenticated     |
-| 👥 Users         | `POST`   | `/api/users`                 | Admin             |
-|                  | `GET`    | `/api/users/assignable`      | Admin             |
-| ❤️ Health        | `GET`    | `/health`                    | Public            |
+| Module           | Method   | Endpoint                     | Access                          |
+| ---------------- | -------- | ---------------------------- | ------------------------------- |
+| 🔐 Auth          | `POST`   | `/api/auth/register`         | Public                          |
+|                  | `POST`   | `/api/auth/login`            | Public                          |
+|                  | `GET`    | `/api/auth/me`               | Authenticated                   |
+|                  | `PATCH`  | `/api/auth/me`               | Authenticated                   |
+| 🏙️ Issues        | `GET`    | `/api/issues`                | Public                          |
+|                  | `POST`   | `/api/issues`                | Authenticated                   |
+|                  | `GET`    | `/api/issues/:id`            | Public                          |
+|                  | `PATCH`  | `/api/issues/:id`            | Authenticated + ownership rules |
+|                  | `PATCH`  | `/api/issues/:id/status`     | Admin / Authority               |
+|                  | `PATCH`  | `/api/issues/:id/assign`     | Admin                           |
+|                  | `DELETE` | `/api/issues/:id`            | Admin / Creator while OPEN      |
+| 💬 Comments      | `POST`   | `/api/issues/:id/comments`   | Authenticated                   |
+|                  | `GET`    | `/api/issues/:id/comments`   | Public                          |
+|                  | `PATCH`  | `/api/comments/:id`          | Authenticated + owner/Admin     |
+|                  | `DELETE` | `/api/comments/:id`          | Authenticated + owner/Admin     |
+| 📝 Activities    | `GET`    | `/api/issues/:id/activities` | Authenticated                   |
+| 🤝 Contributions | `GET`    | `/api/contributions/me`      | Authenticated                   |
+| 👥 Users         | `POST`   | `/api/users`                 | Admin                           |
+|                  | `GET`    | `/api/users/assignable`      | Admin                           |
+| ❤️ Health        | `GET`    | `/health`                    | Public                          |
 
 ### 📡 API Conventions
 
 - RESTful HTTP methods for resource operations
 - JSON request/response handling
 - JWT-based authentication for protected routes
-- Role-based authorization for administrative operations
+- Role-based authorization for protected and role-specific operations
 - Multipart image upload support for issue creation
 - Centralized error handling
 - Request validation using Zod
@@ -366,7 +367,7 @@ CivicLens APIs can be tested using the available REST endpoints.
 ### 🔍 Testing Coverage
 
 - 🔐 Authentication and profile APIs
-- 🏙️ Issue creation, updates, status, and assignment
+- 🏙️ Issue creation, updates, deletion, status changes, and assignment
 - 💬 Comment management
 - 📝 Issue activity tracking
 - 👥 User and contribution APIs
